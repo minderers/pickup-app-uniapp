@@ -7,21 +7,30 @@ export const useUserStore = defineStore(
   () => {
     // 登录用户信息
     const userInfo = ref(null)
+    const token = ref('')
 
     // 保存登录用户信息
     const setUserInfo = (val) => {
       userInfo.value = val
     }
+    const setToken = (val) => {
+      token.value = val
+      uni.setStorageSync('token', val || '')
+    }
 
     // 清除登录用户信息
     const clearUserInfo = () => {
       userInfo.value = undefined
+      token.value = ''
+      uni.removeStorageSync('token')
     }
 
     // 记得 return
     return {
       userInfo,
+      token,
       setUserInfo,
+      setToken,
       clearUserInfo,
     }
   },

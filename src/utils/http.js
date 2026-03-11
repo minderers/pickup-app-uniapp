@@ -57,8 +57,8 @@ const httpInterceptor = {
     options.header = {
       ...options.header,
     }
-    const token = uni.getStorageSync('token') || 'no-token'
-    if (token) {
+    const token = uni.getStorageSync('token')
+    if (token && typeof token === 'string' && token.length > 0) {
       options.header.Authorization = token
     }
   },

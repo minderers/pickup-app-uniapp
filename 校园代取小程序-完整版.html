@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园代取小程序 - 完整版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        accent: '#F59E0B',
+                        danger: '#EF4444',
+                        dark: '#1F2937',
+                        light: '#F3F4F6',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-lg;
+            }
+            .glass-dark {
+                @apply bg-gray-900/70 backdrop-blur-lg border border-gray-800/50 shadow-lg;
+            }
+            .mockup-phone {
+                @apply w-[375px] h-[812px] rounded-[40px] overflow-hidden relative;
+            }
+            .mockup-phone::before {
+                content: '';
+                @apply absolute top-0 left-1/2 transform -translate-x-1/2 w-[60%] h-6 bg-black rounded-b-[20px];
+            }
+        }
+
+        /* 页面切换动画 */
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 隐藏滚动条但保留功能 */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-purple-50 min-h-screen">
+    <!-- 主应用容器 -->
+    <div id="app" class="max-w-md mx-auto bg-gray-50 min-h-screen shadow-2xl">
+
+        <!-- ==================== 首页 ==================== -->
+        <div id="page-home" class="page active">
+            <!-- 顶部搜索栏 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 relative">
+                        <input type="text" placeholder="搜索订单、服务..." class="w-full py-2.5 pl-10 pr-4 rounded-full bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/search.svg" alt="搜索" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 transform -translate-y-1/2">
+                    </div>
+                    <button class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center" onclick="showPage('page-announcement')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/bell.svg" alt="通知" class="w-5 h-5 text-gray-600">
+                        <span class="absolute top-3 right-3 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 滚动内容区域 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar pb-20">
+                <!-- 个性化推荐专区 -->
+                <div class="p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-gray-800">为你推荐</h2>
+                        <button class="text-sm text-primary" onclick="showPage('page-profile-preference')">调整偏好</button>
+                    </div>
+                    <div class="bg-gradient-to-r from-primary to-purple-600 rounded-xl p-4 text-white">
+                        <div class="flex items-center gap-3 mb-3">
+                            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg" alt="推荐" class="w-6 h-6">
+                            </div>
+                            <div>
+                                <h3 class="font-semibold">个性化推荐</h3>
+                                <p class="text-sm opacity-80">根据您的偏好智能匹配</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <span class="px-2 py-1 bg-white/20 rounded-full text-xs">快递代取</span>
+                            <span class="px-2 py-1 bg-white/20 rounded-full text-xs">1公里内</span>
+                            <span class="px-2 py-1 bg-white/20 rounded-full text-xs">¥5以下</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 服务类型 -->
+                <div class="px-4 pb-4">
+                    <div class="grid grid-cols-4 gap-3">
+                        <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                            <div class="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-7 h-7 text-primary">
+                            </div>
+                            <span class="text-xs text-gray-700">快递代取</span>
+                        </div>
+                        <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                            <div class="w-14 h-14 rounded-2xl bg-secondary/10 flex items-center justify-center mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/coffee.svg" alt="外卖代取" class="w-7 h-7 text-secondary">
+                            </div>
+                            <span class="text-xs text-gray-700">外卖代取</span>
+                        </div>
+                        <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                            <div class="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/shopping-bag.svg" alt="超市代购" class="w-7 h-7 text-accent">
+                            </div>
+                            <span class="text-xs text-gray-700">超市代购</span>
+                        </div>
+                        <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                            <div class="w-14 h-14 rounded-2xl bg-purple-100 flex items-center justify-center mb-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="其他服务" class="w-7 h-7 text-purple-500">
+                            </div>
+                            <span class="text-xs text-gray-700">其他服务</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 推荐订单 -->
+                <div class="px-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-gray-800">推荐订单</h2>
+                        <button class="text-sm text-gray-500" onclick="showPage('page-orders')">查看更多</button>
+                    </div>
+
+                    <!-- 订单卡片1 -->
+                    <div class="bg-white rounded-xl p-4 mb-3 shadow-sm" onclick="showPage('page-order-detail')">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-4 h-4 text-primary">
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">快递代取</h4>
+                                    <span class="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">推荐</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mb-1">取件地点：校门口快递柜</p>
+                                <p class="text-xs text-gray-600 mb-1">送达地点：学生宿舍3栋</p>
+                                <div class="flex items-center gap-1 mt-2">
+                                    <span class="text-xs text-green-500 bg-green-50 px-1.5 py-0.5 rounded">距离匹配</span>
+                                    <span class="text-xs text-purple-500 bg-purple-50 px-1.5 py-0.5 rounded">价格匹配</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-primary">¥5.00</span>
+                                <p class="text-xs text-gray-500 mt-1">30分钟内</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                            <div class="flex items-center gap-1">
+                                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-5 h-5 rounded-full">
+                                <span class="text-xs text-gray-500">同学A</span>
+                            </div>
+                            <button class="px-4 py-1.5 bg-primary text-white text-xs rounded-full">接取</button>
+                        </div>
+                    </div>
+
+                    <!-- 订单卡片2 -->
+                    <div class="bg-white rounded-xl p-4 mb-3 shadow-sm" onclick="showPage('page-order-detail')">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <div class="flex items-center gap-2 mb-2">
+                                    <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                                        <img src="https://unpkg.com/lucide-static@latest/icons/coffee.svg" alt="外卖代取" class="w-4 h-4 text-secondary">
+                                    </div>
+                                    <h4 class="font-medium text-gray-800">外卖代取</h4>
+                                    <span class="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">推荐</span>
+                                </div>
+                                <p class="text-xs text-gray-600 mb-1">取件地点：校门口外卖柜</p>
+                                <p class="text-xs text-gray-600 mb-1">送达地点：教学楼5楼</p>
+                                <div class="flex items-center gap-1 mt-2">
+                                    <span class="text-xs text-purple-500 bg-purple-50 px-1.5 py-0.5 rounded">类型匹配</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-primary">¥3.00</span>
+                                <p class="text-xs text-gray-500 mt-1">20分钟内</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                            <div class="flex items-center gap-1">
+                                <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-5 h-5 rounded-full">
+                                <span class="text-xs text-gray-500">同学B</span>
+                            </div>
+                            <button class="px-4 py-1.5 bg-primary text-white text-xs rounded-full">接取</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 border-t border-gray-100 max-w-md mx-auto">
+                <div class="flex justify-around">
+                    <div class="flex flex-col items-center" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="首页" class="w-5 h-5 text-primary">
+                        <span class="text-xs text-primary mt-1">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="订单" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">订单</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center -mt-5">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="发布" class="w-5 h-5 text-white">
+                        </div>
+                        <span class="text-xs text-gray-400 mt-1">发布</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="我的" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">我的</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 订单管理页面 ==================== -->
+        <div id="page-orders" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-gray-800">我的订单</h2>
+                    <button class="text-gray-600" onclick="showPage('page-pending-orders')">
+                        <span class="text-sm text-primary">待接订单</span>
+                    </button>
+                </div>
+                <!-- 订单状态标签 -->
+                <div class="flex gap-4 mt-4">
+                    <button class="text-sm font-medium text-primary border-b-2 border-primary pb-2">全部</button>
+                    <button class="text-sm font-medium text-gray-500 pb-2">进行中</button>
+                    <button class="text-sm font-medium text-gray-500 pb-2">已完成</button>
+                    <button class="text-sm font-medium text-gray-500 pb-2">已取消</button>
+                </div>
+            </div>
+
+            <!-- 订单列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <!-- 订单1 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-500">订单编号：20240520001</span>
+                        </div>
+                        <span class="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full">进行中</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-5 h-5 text-primary">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">快递代取</h4>
+                            <p class="text-xs text-gray-600 mt-1">取件地点：校门口快递柜</p>
+                            <p class="text-xs text-gray-600">送达地点：学生宿舍3栋</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-primary">¥5.00</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+                        <button class="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded-lg">查看详情</button>
+                        <button class="px-3 py-1.5 bg-primary text-white text-xs rounded-lg">联系代取员</button>
+                    </div>
+                </div>
+
+                <!-- 订单2 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-500">订单编号：20240519002</span>
+                        </div>
+                        <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">已完成</span>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/coffee.svg" alt="外卖代取" class="w-5 h-5 text-secondary">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="font-medium text-gray-800">外卖代取</h4>
+                            <p class="text-xs text-gray-600 mt-1">取件地点：校门口外卖柜</p>
+                            <p class="text-xs text-gray-600">送达地点：教学楼5楼</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-primary">¥3.00</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
+                        <button class="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded-lg">再次下单</button>
+                        <button class="px-3 py-1.5 bg-primary text-white text-xs rounded-lg">评价</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 border-t border-gray-100 max-w-md mx-auto">
+                <div class="flex justify-around">
+                    <div class="flex flex-col items-center" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="首页" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="订单" class="w-5 h-5 text-primary">
+                        <span class="text-xs text-primary mt-1">订单</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center -mt-5">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="发布" class="w-5 h-5 text-white">
+                        </div>
+                        <span class="text-xs text-gray-400 mt-1">发布</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="我的" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">我的</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 待接订单页面（代取员专属） ==================== -->
+        <div id="page-pending-orders" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">待接订单</h2>
+                    <button class="text-gray-600">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/filter.svg" alt="筛选" class="w-5 h-5">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 订单列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <!-- 订单1 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-4 h-4 text-primary">
+                                </div>
+                                <h4 class="font-medium text-gray-800">快递代取</h4>
+                                <span class="text-xs text-green-500 bg-green-50 px-1.5 py-0.5 rounded">距离匹配</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mb-1">取件地点：校门口快递柜</p>
+                            <p class="text-xs text-gray-600 mb-1">送达地点：学生宿舍3栋</p>
+                            <div class="mt-2">
+                                <span class="text-xs text-gray-500">推荐理由：距离您当前位置500米，符合您的接单偏好</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-primary">¥5.00</span>
+                            <p class="text-xs text-gray-500 mt-1">30分钟内</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                        <div class="flex items-center gap-1">
+                            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-5 h-5 rounded-full">
+                            <span class="text-xs text-gray-500">同学A</span>
+                        </div>
+                        <button class="px-4 py-1.5 bg-primary text-white text-xs rounded-full" onclick="acceptOrder()">接取</button>
+                    </div>
+                </div>
+
+                <!-- 订单2 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-8 h-8 rounded-full bg-secondary/10 flex items-center justify-center">
+                                    <img src="https://unpkg.com/lucide-static@latest/icons/coffee.svg" alt="外卖代取" class="w-4 h-4 text-secondary">
+                                </div>
+                                <h4 class="font-medium text-gray-800">外卖代取</h4>
+                                <span class="text-xs text-purple-500 bg-purple-50 px-1.5 py-0.5 rounded">类型匹配</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mb-1">取件地点：校门口外卖柜</p>
+                            <p class="text-xs text-gray-600 mb-1">送达地点：教学楼5楼</p>
+                            <div class="mt-2">
+                                <span class="text-xs text-gray-500">推荐理由：您历史接单中80%为外卖代取，经验丰富</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-lg font-bold text-primary">¥3.00</span>
+                            <p class="text-xs text-gray-500 mt-1">20分钟内</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                        <div class="flex items-center gap-1">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-5 h-5 rounded-full">
+                            <span class="text-xs text-gray-500">同学B</span>
+                        </div>
+                        <button class="px-4 py-1.5 bg-primary text-white text-xs rounded-full" onclick="acceptOrder()">接取</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 border-t border-gray-100 max-w-md mx-auto">
+                <div class="flex justify-around">
+                    <div class="flex flex-col items-center" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="首页" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="订单" class="w-5 h-5 text-primary">
+                        <span class="text-xs text-primary mt-1">订单</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center -mt-5">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="发布" class="w-5 h-5 text-white">
+                        </div>
+                        <span class="text-xs text-gray-400 mt-1">发布</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="我的" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">我的</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 订单详情页面 ==================== -->
+        <div id="page-order-detail" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">订单详情</h2>
+                    <button class="text-gray-600">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/more-vertical.svg" alt="更多" class="w-5 h-5">
+                    </button>
+                </div>
+            </div>
+
+            <!-- 订单状态 -->
+            <div class="bg-primary text-white p-4">
+                <h3 class="text-lg font-semibold mb-2">外卖代取</h3>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-1 bg-white/20 rounded-full text-xs">进行中</span>
+                    <span class="text-sm">预计15分钟内送达</span>
+                </div>
+            </div>
+
+            <!-- 订单信息 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">订单信息</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">订单编号</span>
+                            <span class="text-sm text-gray-800">20240520002</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">发布时间</span>
+                            <span class="text-sm text-gray-800">2024-05-20 11:30</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">取件时间</span>
+                            <span class="text-sm text-gray-800">2024-05-20 12:00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">服务信息</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">取件地点</span>
+                            <span class="text-sm text-gray-800">校门口外卖柜</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">送达地点</span>
+                            <span class="text-sm text-gray-800">教学楼5楼</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">报酬金额</span>
+                            <span class="text-sm font-bold text-primary">¥3.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">备注信息</span>
+                            <span class="text-sm text-gray-800">请带好餐具，谢谢</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <h4 class="text-sm font-medium text-gray-500 mb-3">接取人信息</h4>
+                    <div class="flex items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=100&h=100&fit=crop&crop=face" alt="接取人头像" class="w-12 h-12 rounded-full">
+                        <div>
+                            <h5 class="font-medium text-gray-800">同学C</h5>
+                            <p class="text-xs text-gray-500">已完成15单，好评率98%</p>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- ==================== 发布订单页面 ==================== -->
+        <div id="page-publish" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">发布订单</h2>
+                    <button class="text-primary font-medium" onclick="showPage('page-confirm-publish')">发布</button>
+                </div>
+            </div>
+
+            <!-- 订单类型选择 -->
+            <div class="p-4 bg-white mt-2">
+                <h3 class="text-sm font-medium text-gray-500 mb-3">订单类型</h3>
+                <div class="grid grid-cols-4 gap-3">
+                    <div class="flex flex-col items-center cursor-pointer" onclick="selectOrderType(this)">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-1 order-type-active">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-6 h-6 text-primary">
+                        </div>
+                        <span class="text-xs text-gray-700">快递代取</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="selectOrderType(this)">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/coffee.svg" alt="外卖代取" class="w-6 h-6 text-gray-400">
+                        </div>
+                        <span class="text-xs text-gray-500">外卖代取</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="selectOrderType(this)">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/shopping-bag.svg" alt="超市代购" class="w-6 h-6 text-gray-400">
+                        </div>
+                        <span class="text-xs text-gray-500">超市代购</span>
+                    </div>
+                    <div class="flex flex-col items-center cursor-pointer" onclick="selectOrderType(this)">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-1">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/more-horizontal.svg" alt="其他服务" class="w-6 h-6 text-gray-400">
+                        </div>
+                        <span class="text-xs text-gray-500">其他服务</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 订单信息填写 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-4 space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">取件地点</label>
+                        <input type="text" placeholder="请输入取件地点" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">送达地点</label>
+                        <input type="text" placeholder="请输入送达地点" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">取件时间</label>
+                        <input type="text" placeholder="请选择取件时间" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">报酬金额</label>
+                        <input type="text" placeholder="请输入报酬金额" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">备注信息</label>
+                        <textarea placeholder="请输入备注信息" rows="3" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 确认发布页面 ==================== -->
+        <div id="page-confirm-publish" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-publish')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">确认订单</h2>
+                    <button class="text-primary font-medium" onclick="showPage('page-order-success')">完成</button>
+                </div>
+            </div>
+
+            <!-- 订单信息 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-4 space-y-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/package.svg" alt="快递代取" class="w-5 h-5 text-primary">
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-800">快递代取</h3>
+                            <p class="text-xs text-gray-500">订单编号：20240520001</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3 border-t border-gray-100 pt-3">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">取件地点</span>
+                            <span class="text-sm text-gray-800">校门口快递柜</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">送达地点</span>
+                            <span class="text-sm text-gray-800">学生宿舍3栋</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">取件时间</span>
+                            <span class="text-sm text-gray-800">2024-05-20 14:00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">报酬金额</span>
+                            <span class="text-sm font-bold text-primary">¥5.00</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">备注信息</span>
+                            <span class="text-sm text-gray-800">请尽快取件，谢谢</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-6">
+                        <button class="w-full py-3 bg-primary text-white rounded-lg font-medium" onclick="publishOrder()">确认发布</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 订单发布成功页面 ==================== -->
+        <div id="page-order-success" class="page">
+            <div class="h-full flex flex-col items-center justify-center p-4">
+                <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6">
+                    <img src="https://unpkg.com/lucide-static@latest/icons/check.svg" alt="成功" class="w-10 h-10 text-green-500">
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">发布成功</h3>
+                <p class="text-gray-500 mb-8">您的订单已发布，等待代取员接取</p>
+
+                <div class="w-full space-y-3">
+                    <button class="w-full py-3 bg-primary text-white rounded-lg font-medium" onclick="showPage('page-orders')">查看订单</button>
+                    <button class="w-full py-3 bg-gray-100 text-gray-700 rounded-lg font-medium" onclick="showPage('page-home')">返回首页</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 公告咨询页面 ==================== -->
+        <div id="page-announcement" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">公告咨询</h2>
+                    <div class="w-5"></div>
+                </div>
+            </div>
+
+            <!-- 公告列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl">
+                    <div class="p-4 border-b border-gray-100" onclick="showAnnouncementDetail()">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-medium text-gray-800">平台新功能上线啦！</h3>
+                            <span class="text-xs text-gray-500">2024-06-01</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                            为了给大家提供更好的服务体验，我们新增了会员系统和优惠券功能，快来体验吧！
+                        </p>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-medium text-gray-800">关于代取员认证的重要通知</h3>
+                            <span class="text-xs text-gray-500">2024-05-15</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                            为了保障平台交易安全，所有代取员必须完成实名认证才能接单，请未认证的代取员尽快完成认证。
+                        </p>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-medium text-gray-800">假期服务时间调整通知</h3>
+                            <span class="text-xs text-gray-500">2024-04-28</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                            五一假期期间（4月29日-5月3日），平台服务时间调整为9:00-20:00，请大家合理安排下单时间。
+                        </p>
+                    </div>
+
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <h3 class="font-medium text-gray-800">平台使用指南</h3>
+                            <span class="text-xs text-gray-500">2024-04-01</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mt-2 line-clamp-2">
+                            新手用户看过来！这里有详细的平台使用教程，帮助你快速上手校园代取服务。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 我的页面 ==================== -->
+                    <div class="p-4 border-b border-gray-100">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-medium text-gray-800">订单接取通知</h3>
+                            <span class="text-xs text-gray-500">10:00</span>
+                        </div>
+                        <p class="text-sm text-gray-600">您的外卖代取订单已被同学C接取，预计15分钟内送达</p>
+        <!-- ==================== 我的页面 ==================== -->
+        <div id="page-profile" class="page">
+            <!-- 顶部个人信息 -->
+            <div class="bg-gradient-to-r from-primary to-purple-600 text-white p-6">
+                <div class="flex items-center gap-4">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-16 h-16 rounded-full border-2 border-white">
+                    <div>
+                        <h2 class="text-xl font-bold">同学A</h2>
+                        <p class="text-sm opacity-80">普通会员</p>
+                    </div>
+                    <button class="ml-auto" onclick="showPage('page-settings')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/settings.svg" alt="设置" class="w-6 h-6">
+                    </button>
+                </div>
+
+                <!-- 会员专区 -->
+                <div class="mt-6 bg-white/10 rounded-xl p-4 backdrop-blur-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold">会员专区</h3>
+                        <button class="text-xs bg-white/20 px-3 py-1 rounded-full">升级会员</button>
+                    </div>
+                    <div class="flex justify-around">
+                        <div class="text-center">
+                            <p class="text-lg font-bold">12</p>
+                            <p class="text-xs opacity-80">积分</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-lg font-bold">3</p>
+                            <p class="text-xs opacity-80">优惠券</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-lg font-bold">¥50</p>
+                            <p class="text-xs opacity-80">余额</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 画像标签 -->
+            <div class="p-4 bg-white">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="font-semibold text-gray-800">我的画像</h3>
+                    <button class="text-sm text-primary" onclick="showPage('page-profile-preference')">编辑</button>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <span class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">快递代取</span>
+                    <span class="px-3 py-1 bg-secondary/10 text-secondary text-xs rounded-full">1公里内</span>
+                    <span class="px-3 py-1 bg-accent/10 text-accent text-xs rounded-full">¥5以下</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-600 text-xs rounded-full">学生党</span>
+                </div>
+            </div>
+
+            <!-- 功能列表 -->
+            <div class="p-4 pb-24">
+                <div class="bg-white rounded-xl overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between" onclick="showPage('page-personal-info')">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="个人资料" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">个人资料</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between" onclick="showPage('page-coupons')">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/ticket.svg" alt="优惠券" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">优惠券</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-gray-500">3张可用</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between" onclick="showPage('page-address')">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/map-pin.svg" alt="地址管理" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">地址管理</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between" onclick="showPage('page-apply-courier')">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/briefcase.svg" alt="申请代取员" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">申请成为代取员</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 flex items-center justify-between" onclick="showPage('page-profile-preference')">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/sliders.svg" alt="画像偏好" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">画像偏好设置</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden mt-4">
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/help-circle.svg" alt="帮助中心" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">帮助中心</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/message-circle.svg" alt="意见反馈" class="w-5 h-5 text-primary">
+                            <span class="text-gray-800">意见反馈</span>
+                        </div>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部导航 -->
+            <div class="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 border-t border-gray-100 max-w-md mx-auto">
+                <div class="flex justify-around">
+                    <div class="flex flex-col items-center" onclick="showPage('page-home')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/home.svg" alt="首页" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">首页</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-orders')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/list.svg" alt="订单" class="w-5 h-5 text-gray-400">
+                        <span class="text-xs text-gray-400 mt-1">订单</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-publish')">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center -mt-5">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/plus.svg" alt="发布" class="w-5 h-5 text-white">
+                        </div>
+                        <span class="text-xs text-gray-400 mt-1">发布</span>
+                    </div>
+                    <div class="flex flex-col items-center" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/user.svg" alt="我的" class="w-5 h-5 text-primary">
+                        <span class="text-xs text-primary mt-1">我的</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 设置页面 ==================== -->
+        <div id="page-settings" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">设置</h2>
+                    <div class="w-5"></div>
+                </div>
+            </div>
+
+            <!-- 设置列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between" onclick="showPage('page-personal-info')">
+                        <span class="text-gray-800">个人资料</span>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">账号安全</span>
+                        <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">消息通知</span>
+                        <div class="w-11 h-6 bg-primary rounded-full relative">
+                            <div class="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5"></div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">语言设置</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-500">简体中文</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex items-center justify-between">
+                        <span class="text-gray-800">夜间模式</span>
+                        <div class="w-11 h-6 bg-gray-300 rounded-full relative">
+                            <div class="w-5 h-5 bg-white rounded-full absolute left-0.5 top-0.5"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden mt-4">
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">清除缓存</span>
+                        <span class="text-sm text-gray-500">12.5MB</span>
+                    </div>
+
+                    <div class="p-4 flex items-center justify-between">
+                        <span class="text-gray-800">关于我们</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm text-gray-500">v1.0.0</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="w-full py-3 bg-white text-red-500 rounded-xl mt-4 font-medium">退出登录</button>
+            </div>
+        </div>
+
+        <!-- ==================== 个人资料页面 ==================== -->
+        <div id="page-personal-info" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">个人资料</h2>
+                    <button class="text-primary font-medium">保存</button>
+                </div>
+            </div>
+
+            <!-- 资料编辑 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-6 text-center mb-4">
+                    <div class="relative inline-block">
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="用户头像" class="w-20 h-20 rounded-full mx-auto">
+                        <div class="absolute bottom-0 right-0 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/camera.svg" alt="相机" class="w-4 h-4 text-white">
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">点击更换头像</p>
+                </div>
+
+                <div class="bg-white rounded-xl overflow-hidden">
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">昵称</span>
+                        <input type="text" value="同学A" class="text-right text-gray-600 focus:outline-none">
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">手机号</span>
+                        <span class="text-gray-600">138****8888</span>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">性别</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-600">女</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+
+                    <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+                        <span class="text-gray-800">学校</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-600">XX大学</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+
+                    <div class="p-4 flex items-center justify-between">
+                        <span class="text-gray-800">宿舍</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-gray-600">3栋502</span>
+                            <img src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg" alt="箭头" class="w-5 h-5 text-gray-400">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 优惠券管理页面 ==================== -->
+        <div id="page-coupons" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">优惠券</h2>
+                    <div class="w-5"></div>
+                </div>
+            </div>
+
+            <!-- 优惠券标签 -->
+            <div class="bg-white p-4 border-b border-gray-100">
+                <div class="flex gap-4">
+                    <button class="text-sm font-medium text-primary border-b-2 border-primary pb-2">可用</button>
+                    <button class="text-sm font-medium text-gray-500 pb-2">已使用</button>
+                    <button class="text-sm font-medium text-gray-500 pb-2">已过期</button>
+                </div>
+            </div>
+
+            <!-- 优惠券列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <!-- 优惠券1 -->
+                <div class="bg-gradient-to-r from-primary to-purple-600 rounded-xl p-4 text-white mb-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-2xl font-bold">¥5</p>
+                            <p class="text-sm opacity-80">满10元可用</p>
+                        </div>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">新用户专享</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-white/20">
+                        <p class="text-xs opacity-80">有效期至：2024-12-31</p>
+                    </div>
+                </div>
+
+                <!-- 优惠券2 -->
+                <div class="bg-gradient-to-r from-secondary to-green-400 rounded-xl p-4 text-white mb-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-2xl font-bold">¥3</p>
+                            <p class="text-sm opacity-80">满5元可用</p>
+                        </div>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">会员专享</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-white/20">
+                        <p class="text-xs opacity-80">有效期至：2024-06-30</p>
+                    </div>
+                </div>
+
+                <!-- 优惠券3 -->
+                <div class="bg-gradient-to-r from-accent to-orange-400 rounded-xl p-4 text-white mb-3">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-2xl font-bold">8折</p>
+                            <p class="text-sm opacity-80">最高抵扣¥10</p>
+                        </div>
+                        <span class="text-xs bg-white/20 px-2 py-1 rounded-full">限时优惠</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-white/20">
+                        <p class="text-xs opacity-80">有效期至：2024-05-31</p>
+                    </div>
+                </div>
+
+                <button class="w-full py-3 border border-dashed border-gray-300 text-gray-500 rounded-lg">
+                    + 领取优惠券
+                </button>
+            </div>
+        </div>
+
+        <!-- ==================== 地址管理页面 ==================== -->
+        <div id="page-address" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">地址管理</h2>
+                    <button class="text-primary font-medium">添加</button>
+                </div>
+            </div>
+
+            <!-- 地址列表 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <!-- 地址1 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800">同学A</h4>
+                                <span class="text-xs text-gray-500">138****8888</span>
+                                <span class="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full">默认</span>
+                            </div>
+                            <p class="text-sm text-gray-600">XX大学 学生宿舍3栋502室</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="p-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/edit-2.svg" alt="编辑" class="w-4 h-4 text-gray-400">
+                            </button>
+                            <button class="p-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/trash-2.svg" alt="删除" class="w-4 h-4 text-gray-400">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 地址2 -->
+                <div class="bg-white rounded-xl p-4 mb-3 shadow-sm">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="flex items-center gap-2 mb-2">
+                                <h4 class="font-medium text-gray-800">同学A</h4>
+                                <span class="text-xs text-gray-500">138****8888</span>
+                            </div>
+                            <p class="text-sm text-gray-600">XX大学 教学楼5楼502教室</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button class="p-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/edit-2.svg" alt="编辑" class="w-4 h-4 text-gray-400">
+                            </button>
+                            <button class="p-2">
+                                <img src="https://unpkg.com/lucide-static@latest/icons/trash-2.svg" alt="删除" class="w-4 h-4 text-gray-400">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 申请成为代取员页面 ==================== -->
+        <div id="page-apply-courier" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">申请成为代取员</h2>
+                    <button class="text-primary font-medium" onclick="submitApplication()">提交</button>
+                </div>
+            </div>
+
+            <!-- 认证表单 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-4 space-y-4">
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">真实姓名</label>
+                        <input type="text" placeholder="请输入真实姓名" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">身份证号</label>
+                        <input type="text" placeholder="请输入身份证号" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">手机号码</label>
+                        <input type="text" placeholder="请输入手机号码" class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/50">
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">学生证照片</label>
+                        <div class="w-full h-32 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer" onclick="uploadImage(this)">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/camera.svg" alt="上传" class="w-8 h-8 text-gray-400 mb-2">
+                            <span class="text-sm text-gray-500">点击上传学生证照片</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm font-medium text-gray-500 block mb-2">个人照片</label>
+                        <div class="w-full h-32 rounded-lg bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer" onclick="uploadImage(this)">
+                            <img src="https://unpkg.com/lucide-static@latest/icons/camera.svg" alt="上传" class="w-8 h-8 text-gray-400 mb-2">
+                            <span class="text-sm text-gray-500">点击上传个人照片</span>
+                        </div>
+                    </div>
+
+                    <button class="w-full py-3 bg-primary text-white rounded-lg font-medium" onclick="submitApplication()">提交申请</button>
+
+                    <p class="text-xs text-gray-500 text-center">提交后我们将在3个工作日内完成审核</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== 画像偏好设置页面 ==================== -->
+        <div id="page-profile-preference" class="page">
+            <!-- 顶部导航 -->
+            <div class="bg-white shadow-sm p-4 sticky top-0 z-10">
+                <div class="flex items-center justify-between">
+                    <button class="text-gray-600" onclick="showPage('page-profile')">
+                        <img src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" alt="返回" class="w-5 h-5">
+                    </button>
+                    <h2 class="text-lg font-semibold text-gray-800">画像偏好设置</h2>
+                    <button class="text-primary font-medium" onclick="savePreference()">保存</button>
+                </div>
+            </div>
+
+            <!-- 偏好设置 -->
+            <div class="flex-1 overflow-y-auto no-scrollbar p-4 pb-20">
+                <div class="bg-white rounded-xl p-4 mb-4">
+                    <h3 class="font-medium text-gray-800 mb-4">下单偏好</h3>
+
+                    <div class="mb-4">
+                        <label class="text-sm text-gray-500 block mb-2">服务类型</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary rounded focus:ring-primary">
+                                <span class="text-sm text-gray-700">快递代取</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary rounded focus:ring-primary">
+                                <span class="text-sm text-gray-700">外卖代取</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" class="w-4 h-4 text-primary rounded focus:ring-primary">
+                                <span class="text-sm text-gray-700">超市代购</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-sm text-gray-500 block mb-2">最大取件距离</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="distance" value="500" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">500米内</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="distance" value="1000" checked class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">1公里内</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="distance" value="2000" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">2公里内</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-500 block mb-2">期望价格范围</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="price" value="5" checked class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">¥5以下</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="price" value="10" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">¥10以下</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="price" value="20" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">¥20以下</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl p-4">
+                    <h3 class="font-medium text-gray-800 mb-4">代取员接单偏好</h3>
+
+                    <div class="mb-4">
+                        <label class="text-sm text-gray-500 block mb-2">接单类型</label>
+                        <div class="flex flex-wrap gap-2">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary rounded focus:ring-primary">
+                                <span class="text-sm text-gray-700">快递代取</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" checked class="w-4 h-4 text-primary rounded focus:ring-primary">
+                                <span class="text-sm text-gray-700">外卖代取</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="text-sm text-gray-500 block mb-2">最大接单距离</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="courier_distance" value="500" checked class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">500米内</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="courier_distance" value="1000" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">1公里内</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="text-sm text-gray-500 block mb-2">最低接单价格</label>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="min_price" value="3" checked class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">¥3以上</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="radio" name="min_price" value="5" class="w-4 h-4 text-primary focus:ring-primary">
+                                <span class="text-sm text-gray-700">¥5以上</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JavaScript 交互逻辑 -->
+    <script>
+        // 页面切换函数
+        function showPage(pageId) {
+            // 隐藏所有页面
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                page.classList.remove('active');
+            });
+
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+        }
+
+        // 订单类型选择
+        function selectOrderType(element) {
+            // 移除所有选中状态
+            const allTypes = element.parentElement.querySelectorAll('.flex-col');
+            allTypes.forEach(type => {
+                const iconDiv = type.querySelector('div');
+                const icon = iconDiv.querySelector('img');
+                const text = type.querySelector('span');
+
+                iconDiv.classList.remove('bg-primary/10', 'bg-secondary/10', 'bg-accent/10', 'bg-purple-100');
+                iconDiv.classList.add('bg-gray-100');
+                icon.classList.remove('text-primary', 'text-secondary', 'text-accent', 'text-purple-500');
+                icon.classList.add('text-gray-400');
+                text.classList.remove('text-gray-700');
+                text.classList.add('text-gray-500');
+            });
+
+            // 添加选中状态
+            const iconDiv = element.querySelector('div');
+            const icon = iconDiv.querySelector('img');
+            const text = element.querySelector('span');
+
+            iconDiv.classList.remove('bg-gray-100');
+            iconDiv.classList.add('bg-primary/10');
+            icon.classList.remove('text-gray-400');
+            icon.classList.add('text-primary');
+            text.classList.remove('text-gray-500');
+            text.classList.add('text-gray-700');
+        }
+
+        // 接取订单
+        function acceptOrder() {
+            alert('接单成功！请尽快完成取件和送达。');
+            showPage('page-orders');
+        }
+
+        // 发布订单
+        function publishOrder() {
+            showPage('page-order-success');
+        }
+
+        // 上传图片
+        function uploadImage(element) {
+            alert('图片上传功能（实际应用中需要调用相机或相册API）');
+            // 模拟上传成功
+            element.innerHTML = `
+                <img src="https://images.unsplash.com/photo-1517842645767-c639042777db?w=200&h=200&fit=crop" alt="已上传" class="w-full h-full object-cover rounded-lg">
+            `;
+        }
+
+        // 提交申请
+        function submitApplication() {
+            alert('申请已提交！我们将在3个工作日内完成审核。');
+            showPage('page-profile');
+        }
+
+        // 保存偏好设置
+        function savePreference() {
+            alert('偏好设置已保存！');
+            showPage('page-profile');
+        }
+
+        // 显示公告详情
+        function showAnnouncementDetail() {
+            alert('公告详情页面（实际应用中显示完整公告内容）');
+        }
+
+        // 初始化：显示首页
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('page-home');
+        });
+    </script>
+</body>
+</html>

@@ -2,23 +2,131 @@
   "easycom": {
     "autoscan": true,
     "custom": {
-      // uni-ui 规则如下配置
       "^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
     }
   },
   "pages": [
-    //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "uni-app"
+        "navigationBarTitleText": "首页"
       }
+    },
+    {
+      "path": "pages/address/list",
+      "style": { "navigationBarTitleText": "地址管理" }
+    },
+    {
+      "path": "pages/address/edit",
+      "style": { "navigationBarTitleText": "编辑地址" }
+    },
+    {
+      "path": "pages/login/login",
+      "style": { "navigationBarTitleText": "登录" }
+    },
+    {
+      "path": "pages/profile/profile",
+      "style": { "navigationBarTitleText": "个人中心" }
+    },
+    {
+      "path": "pages/profile/edit",
+      "style": { "navigationBarTitleText": "编辑资料" }
+    },
+    {
+      "path": "pages/profile/preference",
+      "style": { "navigationBarTitleText": "偏好设置" }
+    },
+    {
+      "path": "pages/profile/settings",
+      "style": { "navigationBarTitleText": "设置" }
+    },
+    {
+      "path": "pages/news/list",
+      "style": { "navigationBarTitleText": "公告资讯" }
+    },
+    {
+      "path": "pages/news/detail",
+      "style": { "navigationBarTitleText": "资讯详情" }
+    },
+    {
+      "path": "pages/vip/index",
+      "style": { "navigationBarTitleText": "会员中心" }
+    },
+    {
+      "path": "pages/vip/coupons",
+      "style": { "navigationBarTitleText": "我的优惠券" }
+    },
+    {
+      "path": "pages/orders/create",
+      "style": { "navigationBarTitleText": "发起代取" }
+    },
+    {
+      "path": "pages/orders/list",
+      "style": { "navigationBarTitleText": "我的订单" }
+    },
+    {
+      "path": "pages/orders/detail",
+      "style": { "navigationBarTitleText": "订单详情" }
+    },
+    {
+      "path": "pages/publish/index",
+      "style": {
+        "navigationBarTitleText": "发布",
+        "navigationStyle": "default"
+      }
+    },
+    {
+      "path": "pages/courier/waiting",
+      "style": { "navigationBarTitleText": "待接订单" }
+    },
+    {
+      "path": "pages/courier/list",
+      "style": { "navigationBarTitleText": "接单管理" }
+    },
+    {
+      "path": "pages/courier/stats",
+      "style": { "navigationBarTitleText": "画像数据" }
+    },
+    {
+      "path": "pages/courier/apply",
+      "style": { "navigationBarTitleText": "代取员申请" }
     }
   ],
   "globalStyle": {
     "navigationBarTextStyle": "black",
-    "navigationBarTitleText": "uni-app",
+    "navigationBarTitleText": "校园代取",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#777",
+    "selectedColor": "#4F46E5",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/orders/list",
+        "text": "订单",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/publish/index",
+        "text": "发布",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "static/logo.png",
+        "selectedIconPath": "static/logo.png"
+      }
+    ]
   }
 }
