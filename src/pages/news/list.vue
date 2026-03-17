@@ -4,7 +4,7 @@
     <view class="bg-white shadow-sm p-4 sticky top-0 z-10">
       <view class="flex items-center justify-between">
         <button class="text-gray-600" @tap="back">
-          <image class="w-5 h-5" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
+          <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
         </button>
         <view class="text-lg font-semibold text-gray-800">公告咨询</view>
         <view class="w-5"></view>

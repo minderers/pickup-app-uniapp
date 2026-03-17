@@ -8,7 +8,7 @@
     <view class="space-y-3">
       <view class="bg-white rounded-xl p-4 shadow-sm flex items-center justify-between" v-for="v in products" :key="v.pkId">
         <view>
-          <view class="text-[30rpx]">{{ v.name }}</view>
+          <view class="text-15">{{ v.name }}</view>
           <view class="text-gray-500 text-xs">￥{{ v.price }}/{{ v.duration }}天</view>
         </view>
         <button size="mini" @tap="open(v.pkId)">开通/续费</button>

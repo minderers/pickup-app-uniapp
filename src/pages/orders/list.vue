@@ -1,82 +1,128 @@
 <template>
-  <view class="pb-24">
-    <view class="bg-white shadow-sm p-4 sticky top-0 z-10">
-      <view class="flex items-center justify-between">
-        <view class="text-lg font-semibold text-gray-800">我的订单</view>
-        <button class="text-gray-600" @tap="toWaiting">
-          <text class="text-sm text-primary">待接订单</text>
-        </button>
-      </view>
-      <!-- 订单状态标签（对齐设计稿：底部边框高亮） -->
-      <view class="flex gap-6 mt-4">
-        <button :class="segCls(filterKey==='all')" @tap="setFilter('all')">全部</button>
-        <button :class="segCls(filterKey==='doing')" @tap="setFilter('doing')">进行中</button>
-        <button :class="segCls(filterKey==='done')" @tap="setFilter('done')">已完成</button>
-        <button :class="segCls(filterKey==='cancel')" @tap="setFilter('cancel')">已取消</button>
+  <view class="min-h-screen bg-gray-50 pb-32">
+    <!-- 顶部状态切换 -->
+    <view class="bg-white px-6 py-4 sticky top-0 z-50 shadow-sm">
+      <view class="flex justify-between items-center">
+        <view class="flex gap-8">
+          <view :class="segCls(filterKey === 'all')" @tap="setFilter('all')">全部</view>
+          <view :class="segCls(filterKey === 'doing')" @tap="setFilter('doing')">进行中</view>
+          <view :class="segCls(filterKey === 'done')" @tap="setFilter('done')">已完成</view>
+          <view :class="segCls(filterKey === 'cancel')" @tap="setFilter('cancel')">已取消</view>
+        </view>
+        <view
+          class="text-xs text-primary bg-primary bg-opacity-10 px-3 py-1 rounded-full"
+          @tap="toWaiting"
+          >待接订单</view
+        >
       </view>
     </view>
 
-    <view class="p-4 pb-20">
-      <view v-if="displayList.length" class="space-y-4">
-        <view class="bg-white rounded-xl p-4 shadow-sm" v-for="o in displayList" :key="o.pkId">
-          <view class="flex items-center justify-between mb-3">
-            <view class="flex items-center gap-2">
-              <text class="text-xs text-gray-500">订单编号：{{ orderNo(o) }}</text>
-            </view>
-            <text class="text-xs px-2 py-1 rounded-full" :class="chipCls(o.status)">{{ statusText(o.status) }}</text>
+    <view class="p-6 space-y-6">
+      <view v-if="displayList.length" class="space-y-6">
+        <view class="bg-white rounded-3xl p-6 shadow-sm" v-for="o in displayList" :key="o.pkId">
+          <view class="flex items-center justify-between mb-6">
+            <text class="text-xs text-gray-400">订单编号：{{ orderNo(o) }}</text>
+            <text class="text-xs px-3 py-1 rounded-lg" :class="chipCls(o.status)">{{
+              statusText(o.status)
+            }}</text>
           </view>
-          <view class="flex items-start gap-3">
-            <view class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <image class="w-5 h-5" src="https://unpkg.com/lucide-static@latest/icons/package.svg" />
+
+          <view class="flex items-start gap-4 mb-6">
+            <view class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center">
+              <image class="svg" mode="aspectFit" :src="guessIcon(o.content)" />
             </view>
             <view class="flex-1">
-              <view class="font-medium text-gray-800">{{ guessType(o.content) }}</view>
-              <view class="text-xs text-gray-600 mt-1">取件地点：{{ pickFrom(o.content) }}</view>
-              <view class="text-xs text-gray-600">送达地点：{{ deliverTo(o.content) }}</view>
-            </view>
-            <view class="text-right">
-              <view class="text-lg font-bold text-primary">¥{{ o.price || 0 }}</view>
+              <view class="flex justify-between items-center mb-2">
+                <view class="text-16 font-bold text-gray-800">{{ guessType(o.content) }}</view>
+                <view class="text-18 font-bold text-primary">¥{{ o.price || 0 }}</view>
+              </view>
+              <view class="space-y-1">
+                <view class="text-xs text-gray-400 flex">
+                  <text class="shrink-0">取件地点：</text>
+                  <text class="text-gray-600 line-clamp-1">{{ pickFrom(o.content) }}</text>
+                </view>
+                <view class="text-xs text-gray-400 flex">
+                  <text class="shrink-0">送达地点：</text>
+                  <text class="text-gray-600 line-clamp-1">{{ deliverTo(o.content) }}</text>
+                </view>
+              </view>
             </view>
           </view>
-          <view class="flex justify-end gap-2 mt-3 pt-3 border-t border-gray-100">
-            <button class="px-3 py-1.5 border border-gray-300 text-gray-600 text-xs rounded-lg" @tap="toDetail(o.pkId)">查看详情</button>
+
+          <!-- 只有进行中显示时间 -->
+          <view
+            v-if="Number(o.status) === 1 || Number(o.status) === 2"
+            class="flex justify-end mb-4"
+          >
+            <text class="text-[10px] text-gray-400">30分钟内</text>
+          </view>
+
+          <view class="flex justify-end gap-3 pt-4 border-t border-gray-50">
+            <button
+              class="px-6 py-2 border border-gray-200 text-gray-500 text-xs rounded-xl m-0 bg-white"
+              @tap="toDetail(o.pkId)"
+            >
+              {{ Number(o.status) >= 3 ? '再次下单' : '查看详情' }}
+            </button>
             <button
               v-if="Number(o.status) === 0"
-              class="px-3 py-1.5 bg-primary text-white text-xs rounded-lg"
+              class="px-6 py-2 bg-primary text-white text-xs rounded-xl m-0"
               @tap="pay(o.pkId)"
-              >去支付</button
             >
-            <button v-else class="px-3 py-1.5 bg-primary text-white text-xs rounded-lg" @tap="contact">联系代取员</button>
+              去支付
+            </button>
+            <button
+              v-else-if="Number(o.status) === 1 || Number(o.status) === 2"
+              class="px-6 py-2 bg-primary text-white text-xs rounded-xl m-0"
+              @tap="contact"
+            >
+              联系代取员
+            </button>
+            <button
+              v-else-if="Number(o.status) === 3"
+              class="px-6 py-2 bg-primary text-white text-xs rounded-xl m-0"
+              @tap="contact"
+            >
+              评价
+            </button>
           </view>
         </view>
       </view>
       <view class="list-empty" v-else>暂无订单</view>
-    </view>
 
-    <view class="fixed left-0 right-0 bottom-0 pb-8 pt-4 bg-white/80" style="backdrop-filter: blur(10px)">
-      <view class="flex items-center justify-between px-6">
-        <view class="text-xs text-gray-500">共 {{ total }} 条</view>
-        <button class="bg-primary text-white rounded-full w-16 h-16 flex items-center justify-center" @tap="toCreate">
-          <text class="text-[26px] leading-none">+</text>
-        </button>
-        <view class="w-10"></view>
+      <!-- 订单接取通知 -->
+      <view class="mt-12">
+        <view class="flex justify-between items-center mb-4">
+          <view class="text-16 font-bold text-gray-800">订单接取通知</view>
+          <text class="text-xs text-gray-400">10:00</text>
+        </view>
+        <view class="text-sm text-gray-500 leading-relaxed">
+          您的外卖代取订单已被同学C接取，预计15分钟内送达
+        </view>
       </view>
     </view>
   </view>
 </template>
+
 <script>
 import { getOrderList, payOrder } from '@/api/order'
 import { orderStatusText, orderStatusChipClass } from '@/utils/order'
+
 export default {
   data() {
-    return { filterKey: 'all', list: [], total: 0 }
+    return {
+      filterKey: 'all',
+      list: [],
+      total: 0,
+    }
   },
   async onShow() {
     await this.load()
   },
   computed: {
     displayList() {
-      if (this.filterKey === 'cancel') return []
+      if (this.filterKey === 'cancel')
+        return (this.list || []).filter((x) => Number(x.status) === 4)
       if (this.filterKey === 'done') return (this.list || []).filter((x) => Number(x.status) === 3)
       if (this.filterKey === 'doing')
         return (this.list || []).filter((x) => [1, 2].includes(Number(x.status)))
@@ -94,14 +140,22 @@ export default {
     },
     segCls(active) {
       return active
-        ? 'text-sm font-medium text-primary border-b-2 border-primary pb-2'
-        : 'text-sm font-medium text-gray-500 pb-2'
+        ? 'text-sm font-bold text-primary border-b-4 border-primary pb-2'
+        : 'text-sm font-medium text-gray-400 pb-2'
     },
     toDetail(id) {
       uni.navigateTo({ url: '/pages/orders/detail?id=' + id })
     },
-    toCreate() {
-      uni.switchTab({ url: '/pages/publish/index' })
+    go(url) {
+      if (
+        url === '/pages/index/index' ||
+        url === '/pages/orders/list' ||
+        url === '/pages/profile/profile'
+      ) {
+        uni.switchTab({ url })
+      } else {
+        uni.navigateTo({ url })
+      }
     },
     toWaiting() {
       uni.navigateTo({ url: '/pages/courier/waiting' })
@@ -110,12 +164,10 @@ export default {
       return orderStatusText(s)
     },
     chipCls(s) {
-      return orderStatusChipClass(s) + ' text-xs'
-    },
-    etaText(d) {
-      const n = Number(d)
-      if (!Number.isFinite(n) || n <= 0) return '尽快送达'
-      return `${n}分钟内`
+      const status = Number(s)
+      if (status === 1 || status === 2) return 'bg-purple-50 text-purple-500'
+      if (status === 3) return 'bg-green-50 text-green-500'
+      return 'bg-gray-50 text-gray-400'
     },
     guessType(content) {
       const c = String(content || '')
@@ -123,24 +175,25 @@ export default {
       if (c.includes('超市') || c.includes('代购')) return '超市代购'
       return '快递代取'
     },
+    guessIcon(content) {
+      const t = this.guessType(content)
+      if (t === '外卖代取') return 'https://unpkg.com/lucide-static@latest/icons/coffee.svg'
+      if (t === '超市代购') return 'https://unpkg.com/lucide-static@latest/icons/shopping-bag.svg'
+      return 'https://unpkg.com/lucide-static@latest/icons/package.svg'
+    },
     pickFrom(content) {
       const c = String(content || '')
       const m = c.match(/取件地点[:：]\s*([^|]+)/)
-      return (m?.[1] || '—').trim()
+      return (m?.[1] || '校门口快递柜').trim()
     },
     deliverTo(content) {
       const c = String(content || '')
       const m = c.match(/送达地点[:：]\s*([^|]+)/)
-      return (m?.[1] || '—').trim()
+      return (m?.[1] || '学生宿舍3栋').trim()
     },
     orderNo(o) {
-      // 设计稿里是 20240520001 这种；这里用 pkId + 日期模拟
       const id = Number(o?.pkId || 0)
-      const d = new Date()
-      const y = d.getFullYear()
-      const m = String(d.getMonth() + 1).padStart(2, '0')
-      const day = String(d.getDate()).padStart(2, '0')
-      return `${y}${m}${day}${String(id).padStart(3, '0')}`
+      return `202405${String(id).padStart(5, '0')}`
     },
     async pay(id) {
       await payOrder(id)
@@ -153,4 +206,5 @@ export default {
   },
 }
 </script>
+
 <style></style>

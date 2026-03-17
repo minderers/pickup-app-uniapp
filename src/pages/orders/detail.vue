@@ -2,9 +2,9 @@
   <view class="pb-20">
     <!-- 顶部状态区（主色） -->
     <view class="bg-primary text-white p-6">
-      <view class="text-[18px] font-semibold mb-3">{{ guessType(info.content) }}</view>
+      <view class="text-18 font-semibold mb-3">{{ guessType(info.content) }}</view>
       <view class="flex items-center gap-2">
-        <text class="px-2 py-1 bg-white/20 rounded-full text-xs">{{
+        <text class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs">{{
           statusText(info.status)
         }}</text>
         <text class="text-sm opacity-90">{{ etaHint(info.duration, info.status) }}</text>

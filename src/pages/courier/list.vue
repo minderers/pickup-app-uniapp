@@ -22,7 +22,7 @@
     </view>
     <view class="space-y-4">
       <view class="bg-white rounded-xl p-4 shadow-sm" v-for="o in list" :key="o.pkId">
-        <view class="text-[15px]">{{ o.content }}</view>
+        <view class="text-15">{{ o.content }}</view>
         <view class="text-gray-500 mt-1">￥{{ o.price }} 状态{{ o.status }}</view>
       </view>
     </view>

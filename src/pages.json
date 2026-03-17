@@ -14,11 +14,10 @@
     },
     {
       "path": "pages/address/list",
-      "style": { "navigationBarTitleText": "地址管理" }
-    },
-    {
-      "path": "pages/address/edit",
-      "style": { "navigationBarTitleText": "编辑地址" }
+      "style": {
+        "navigationBarTitleText": "地址管理",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/login/login",
@@ -30,15 +29,17 @@
     },
     {
       "path": "pages/profile/edit",
-      "style": { "navigationBarTitleText": "编辑资料" }
+      "style": {
+        "navigationBarTitleText": "编辑资料",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/profile/preference",
-      "style": { "navigationBarTitleText": "偏好设置" }
-    },
-    {
-      "path": "pages/profile/settings",
-      "style": { "navigationBarTitleText": "设置" }
+      "style": {
+        "navigationBarTitleText": "画像偏好设置",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/news/list",
@@ -58,7 +59,7 @@
     },
     {
       "path": "pages/orders/create",
-      "style": { "navigationBarTitleText": "发起代取" }
+      "style": { "navigationBarTitleText": "发布订单" }
     },
     {
       "path": "pages/orders/list",
@@ -71,13 +72,16 @@
     {
       "path": "pages/publish/index",
       "style": {
-        "navigationBarTitleText": "发布",
+        "navigationBarTitleText": "发布订单",
         "navigationStyle": "default"
       }
     },
     {
       "path": "pages/courier/waiting",
-      "style": { "navigationBarTitleText": "待接订单" }
+      "style": {
+        "navigationBarTitleText": "待接订单",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/courier/list",
@@ -89,7 +93,10 @@
     },
     {
       "path": "pages/courier/apply",
-      "style": { "navigationBarTitleText": "代取员申请" }
+      "style": {
+        "navigationBarTitleText": "申请成为代取员",
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {
@@ -106,26 +113,26 @@
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "static/logo.png",
-        "selectedIconPath": "static/logo.png"
+        "iconPath": "static/tabbar/shouye1.png",
+        "selectedIconPath": "static/tabbar/shouye1-copy.png"
       },
       {
         "pagePath": "pages/orders/list",
         "text": "订单",
-        "iconPath": "static/logo.png",
-        "selectedIconPath": "static/logo.png"
+        "iconPath": "static/tabbar/dingdan.png",
+        "selectedIconPath": "static/tabbar/dingdan-copy.png"
       },
       {
         "pagePath": "pages/publish/index",
         "text": "发布",
-        "iconPath": "static/logo.png",
-        "selectedIconPath": "static/logo.png"
+        "iconPath": "static/tabbar/fabu.png",
+        "selectedIconPath": "static/tabbar/fabu-copy.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
-        "iconPath": "static/logo.png",
-        "selectedIconPath": "static/logo.png"
+        "iconPath": "static/tabbar/wode.png",
+        "selectedIconPath": "static/tabbar/wode-copy.png"
       }
     ]
   }

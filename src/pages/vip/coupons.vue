@@ -1,7 +1,7 @@
 <template>
   <view class="pb-20">
     <view class="bg-white p-6 shadow-sm">
-      <view class="text-[18px] font-semibold text-gray-800">优惠券</view>
+      <view class="text-18 font-semibold text-gray-800">优惠券</view>
       <view class="flex gap-6 mt-4 border-b border-gray-100">
         <view :class="tabCls(tab==='usable')" @tap="setTab('usable')">可用</view>
         <view :class="tabCls(tab==='used')" @tap="setTab('used')">已使用</view>
@@ -16,9 +16,9 @@
             <view class="text-2xl font-bold">权益券</view>
             <view class="text-sm opacity-80 mt-1">#{{ c.interestId }}</view>
           </view>
-          <text class="text-xs bg-white/20 px-3 py-1 rounded-full">{{ badgeText(c) }}</text>
+          <text class="text-xs bg-white bg-opacity-20 px-3 py-1 rounded-full">{{ badgeText(c) }}</text>
         </view>
-        <view class="mt-4 pt-4 border-t border-white/20">
+        <view class="mt-4 pt-4 border-t border-white border-opacity-20">
           <view class="text-xs opacity-80">有效期至：{{ c.endTime || '-' }}</view>
         </view>
       </view>

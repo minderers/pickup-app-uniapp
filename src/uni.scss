@@ -75,29 +75,9 @@ $uni-font-size-subtitle: 18px;
 $uni-color-paragraph: #3f536e; // 文章段落颜色
 $uni-font-size-paragraph: 15px;
 
-/* 全局样式补充 */
-.card { background: #fff; border-radius: 16rpx; padding: 24rpx; box-shadow: 0 8rpx 24rpx rgba(0,0,0,.04); }
-.btn-primary { background: $uni-color-primary; color: #fff; }
-.muted { color: #888; }
-.tag { background: #f5f5f5; border-radius: 24rpx; padding: 8rpx 12rpx; font-size: 24rpx; }
-.section-title { font-size: 30rpx; font-weight: 600; margin: 16rpx 0; }
-.list-empty { text-align: center; color: #999; padding: 40rpx 0; }
+/* 全局样式已迁移至 uno.config.ts (shortcuts) 或由 UnoCSS 原子类直接实现 */
+/* 如果需要全局 SCSS 变量，请保留在此处 */
 
-/* 顶部搜索条与服务宫格 */
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24rpx}
-.search{flex:1;position:relative}
-.icon{width:28rpx;height:28rpx;position:absolute;left:16rpx;top:50%;transform:translateY(-50%)}
-.search-input{width:100%;height:72rpx;background:#F3F4F6;border-radius:999rpx;padding:0 24rpx 0 60rpx}
-.bell{margin-left:16rpx;width:72rpx;height:72rpx;border-radius:999rpx;background:#F3F4F6;display:flex;align-items:center;justify-content:center}
-.service-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16rpx;margin-bottom:16rpx}
-.svc{display:flex;flex-direction:column;align-items:center}
-.svc-ico{width:88rpx;height:88rpx;border-radius:24rpx;display:flex;align-items:center;justify-content:center;margin-bottom:8rpx}
-.svc-ico.primary{background:rgba(79,70,229,.1)}
-.svc-ico.secondary{background:rgba(16,185,129,.1)}
-.svc-ico.accent{background:rgba(245,158,11,.1)}
-.svc-ico.purple{background:#ede9fe}
-.ico{width:48rpx;height:48rpx}
-.svc-txt{font-size:22rpx;color:#374151}
 
 /* 通用按钮与标签 */
 .btn{background:$uni-color-primary;color:#fff;border-radius:12rpx;padding:16rpx;text-align:center}

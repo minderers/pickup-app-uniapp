@@ -1,12 +1,12 @@
 <template>
   <view class="min-h-screen bg-gray-50 p-6">
     <view class="bg-gradient-to-r from-primary to-purple-600 rounded-2xl p-6 text-white mb-6">
-      <view class="text-[20px] font-bold">校园代取</view>
+      <view class="text-20 font-bold">校园代取</view>
       <view class="text-sm opacity-80 mt-2">验证码登录（未注册手机号将自动创建账号）</view>
     </view>
 
     <view class="bg-white rounded-2xl p-6 shadow-sm">
-      <view class="text-[18px] font-semibold text-gray-800 mb-5">手机号登录</view>
+      <view class="text-18 font-semibold text-gray-800 mb-5">手机号登录</view>
       <view class="space-y-4">
         <input
           class="w-full py-3 px-4 rounded-lg bg-gray-50 border border-gray-200"

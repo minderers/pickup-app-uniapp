@@ -1,58 +1,121 @@
 <template>
-  <view class="p-6">
-    <view class="bg-white rounded-xl p-5 mb-4 shadow-sm">
-      <view class="flex items-center justify-between mb-2">
-        <view class="text-[16px] font-semibold text-gray-800">画像偏好设置</view>
-        <button class="text-sm text-primary" size="mini" @tap="done">保存</button>
+  <view class="min-h-screen bg-gray-50 pb-32">
+    <!-- 顶部导航栏 -->
+    <view
+      class="bg-white px-6 pt-12 pb-4 sticky top-0 z-50 flex items-center justify-between shadow-sm"
+    >
+      <view class="flex items-center gap-4" @tap="back">
+        <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
       </view>
-      <view class="text-xs text-gray-500">对齐设计稿：checkbox + radio 的偏好配置</view>
+      <view class="text-18 font-bold text-gray-800">画像偏好设置</view>
+      <view class="text-primary font-medium" @tap="done">保存</view>
     </view>
 
-    <view class="bg-white rounded-xl p-5 mb-4 shadow-sm">
-      <view class="font-medium text-gray-800 mb-4">下单偏好</view>
+    <view class="p-6 space-y-6">
+      <!-- 下单偏好 -->
+      <view class="bg-white rounded-3xl p-6 shadow-sm">
+        <view class="text-18 font-bold text-gray-800 mb-6">下单偏好</view>
 
-      <view class="mb-4">
-        <view class="text-sm text-gray-500 mb-2">服务类型</view>
-        <view class="flex flex-wrap gap-4">
-          <label class="flex items-center gap-2" v-for="t in allTypes" :key="t">
-            <checkbox :checked="selTypes.includes(t)" @click="toggle(t)" color="#4F46E5" style="transform: scale(0.9)" />
-            <text class="text-sm text-gray-700">{{ t }}</text>
-          </label>
+        <view class="mb-6">
+          <view class="text-sm text-gray-400 mb-4">服务类型</view>
+          <view class="flex flex-wrap gap-x-6 gap-y-4">
+            <label class="flex items-center gap-2" v-for="t in allTypes" :key="t">
+              <checkbox
+                :checked="selTypes.includes(t)"
+                @click="toggle(t)"
+                color="#4F46E5"
+                style="transform: scale(0.8)"
+              />
+              <text class="text-sm text-gray-600">{{ t }}</text>
+            </label>
+          </view>
+        </view>
+
+        <view class="mb-6">
+          <view class="text-sm text-gray-400 mb-4">最大取件距离</view>
+          <radio-group @change="onDistance">
+            <view class="flex flex-wrap gap-x-6 gap-y-4">
+              <label class="flex items-center gap-2" v-for="d in distances" :key="d.value">
+                <radio
+                  :value="String(d.value)"
+                  :checked="distance === d.value"
+                  color="#4F46E5"
+                  style="transform: scale(0.8)"
+                />
+                <text class="text-sm text-gray-600">{{ d.label }}</text>
+              </label>
+            </view>
+          </radio-group>
+        </view>
+
+        <view>
+          <view class="text-sm text-gray-400 mb-4">期望价格范围</view>
+          <radio-group @change="onPriceRadio">
+            <view class="flex flex-wrap gap-x-6 gap-y-4">
+              <label class="flex items-center gap-2" v-for="p in prices" :key="p.value">
+                <radio
+                  :value="String(p.value)"
+                  :checked="maxPrice === p.value"
+                  color="#4F46E5"
+                  style="transform: scale(0.8)"
+                />
+                <text class="text-sm text-gray-600">{{ p.label }}</text>
+              </label>
+            </view>
+          </radio-group>
         </view>
       </view>
 
-      <view class="mb-4">
-        <view class="text-sm text-gray-500 mb-2">最大取件距离</view>
-        <radio-group @change="onDistance">
-          <view class="flex gap-6 flex-wrap">
-            <label class="flex items-center gap-2" v-for="d in distances" :key="d.value">
-              <radio :value="String(d.value)" :checked="distance === d.value" color="#4F46E5" style="transform: scale(0.9)" />
-              <text class="text-sm text-gray-700">{{ d.label }}</text>
+      <!-- 代取员接单偏好 -->
+      <view class="bg-white rounded-3xl p-6 shadow-sm">
+        <view class="text-18 font-bold text-gray-800 mb-6">代取员接单偏好</view>
+
+        <view class="mb-6">
+          <view class="text-sm text-gray-400 mb-4">接单类型</view>
+          <view class="flex flex-wrap gap-x-6 gap-y-4">
+            <label class="flex items-center gap-2">
+              <checkbox checked color="#4F46E5" style="transform: scale(0.8)" />
+              <text class="text-sm text-gray-600">快递代取</text>
+            </label>
+            <label class="flex items-center gap-2">
+              <checkbox checked color="#4F46E5" style="transform: scale(0.8)" />
+              <text class="text-sm text-gray-600">外卖代取</text>
             </label>
           </view>
-        </radio-group>
-      </view>
+        </view>
 
-      <view>
-        <view class="text-sm text-gray-500 mb-2">期望价格范围</view>
-        <radio-group @change="onPriceRadio">
-          <view class="flex gap-6 flex-wrap">
-            <label class="flex items-center gap-2" v-for="p in prices" :key="p.value">
-              <radio :value="String(p.value)" :checked="maxPrice === p.value" color="#4F46E5" style="transform: scale(0.9)" />
-              <text class="text-sm text-gray-700">{{ p.label }}</text>
-            </label>
-          </view>
-        </radio-group>
-      </view>
-    </view>
+        <view class="mb-6">
+          <view class="text-sm text-gray-400 mb-4">最大接单距离</view>
+          <radio-group>
+            <view class="flex flex-wrap gap-x-6 gap-y-4">
+              <label class="flex items-center gap-2">
+                <radio value="500" checked color="#4F46E5" style="transform: scale(0.8)" />
+                <text class="text-sm text-gray-600">500米内</text>
+              </label>
+              <label class="flex items-center gap-2">
+                <radio value="1000" color="#4F46E5" style="transform: scale(0.8)" />
+                <text class="text-sm text-gray-600">1公里内</text>
+              </label>
+            </view>
+          </radio-group>
+        </view>
 
-    <view class="bg-white rounded-xl p-5 shadow-sm">
-      <view class="font-medium text-gray-800 mb-4">代取员接单偏好</view>
-      <view class="flex items-center justify-between">
-        <text class="text-sm text-gray-700">仅展示“附近”</text>
-        <switch :checked="nearOnly" @change="(e) => setNearOnly(e.detail.value)" />
+        <view>
+          <view class="text-sm text-gray-400 mb-4">最低接单价格</view>
+          <radio-group>
+            <view class="flex flex-wrap gap-x-6 gap-y-4">
+              <label class="flex items-center gap-2">
+                <radio value="3" checked color="#4F46E5" style="transform: scale(0.8)" />
+                <text class="text-sm text-gray-600">¥3以上</text>
+              </label>
+              <label class="flex items-center gap-2">
+                <radio value="5" color="#4F46E5" style="transform: scale(0.8)" />
+                <text class="text-sm text-gray-600">¥5以上</text>
+              </label>
+            </view>
+          </radio-group>
+        </view>
       </view>
-      <view class="text-xs text-gray-500 mt-3">当前后端未提供距离/类型匹配配置接口，本页用于前端展示与本地偏好保存。</view>
     </view>
   </view>
 </template>
@@ -96,6 +159,9 @@ export default {
     if (!(this.selTypes || []).length) this.s.setServiceTypes(['快递代取', '外卖代取'])
   },
   methods: {
+    back() {
+      uni.navigateBack()
+    },
     toggle(t) {
       this.s.toggleServiceType(t)
     },
@@ -107,15 +173,14 @@ export default {
     onPriceRadio(e) {
       this.s.setMaxPrice(Number(e.detail.value))
     },
-    setNearOnly(v) {
-      this.s.setNearOnly(v)
-    },
     done() {
-      uni.navigateBack()
+      uni.showToast({ title: '保存成功' })
+      setTimeout(() => {
+        uni.navigateBack()
+      }, 1000)
     },
   },
 }
 </script>
 
 <style></style>
-

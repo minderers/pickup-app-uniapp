@@ -1,75 +1,124 @@
 <template>
-  <view class="p-6">
-    <view class="flex flex-col gap-4">
-      <view class="bg-white rounded-2xl p-6 shadow-sm flex items-center gap-4">
-        <image class="w-24 h-24 rounded-full bg-gray-100" :src="form.avatar || def" />
-        <view class="flex-1">
-          <view class="text-[15px] font-medium">头像</view>
-          <view class="text-xs text-gray-500 mt-1">可直接填写链接，或点击上传</view>
-          <view class="flex gap-3 mt-3">
-            <button size="mini" @tap="chooseAvatar">上传</button>
-            <button size="mini" @tap="clearAvatar" type="warn">清除</button>
+  <view class="min-h-screen bg-gray-50 pb-20">
+    <!-- 顶部导航栏 -->
+    <view
+      class="bg-white px-6 pt-12 pb-4 sticky top-0 z-50 flex items-center justify-between shadow-sm"
+    >
+      <view class="flex items-center gap-4" @tap="back">
+        <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
+      </view>
+      <view class="text-18 font-bold text-gray-800">个人资料</view>
+      <view class="text-primary font-medium" @tap="save">保存</view>
+    </view>
+
+    <view class="p-6 space-y-6">
+      <!-- 头像上传 -->
+      <view
+        class="bg-white rounded-3xl p-8 flex flex-col items-center justify-center shadow-sm"
+        @tap="pickAvatar"
+      >
+        <view class="relative">
+          <image
+            class="w-24 h-24 rounded-full bg-gray-100"
+            :src="form.avatar || def"
+            mode="aspectFill"
+          />
+          <view
+            class="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary flex-center border-2 border-white"
+          >
+            <image class="w-5 h-5" src="https://unpkg.com/lucide-static@latest/icons/camera.svg" />
+          </view>
+        </view>
+        <view class="text-sm text-gray-400 mt-4">点击更换头像</view>
+      </view>
+
+      <!-- 信息列表 -->
+      <view class="bg-white rounded-3xl overflow-hidden shadow-sm">
+        <view class="flex-between p-5 border-b border-gray-50">
+          <text class="text-gray-500">昵称</text>
+          <input
+            class="text-right text-gray-800"
+            v-model="form.nickname"
+            placeholder="请输入昵称"
+          />
+        </view>
+        <view class="flex-between p-5 border-b border-gray-50">
+          <text class="text-gray-500">手机号</text>
+          <text class="text-gray-400">{{ desensitize(user.phone) }}</text>
+        </view>
+        <view class="flex-between p-5 border-b border-gray-50">
+          <text class="text-gray-500">性别</text>
+          <view class="flex items-center gap-2">
+            <text class="text-gray-800">{{ form.gender || '请选择' }}</text>
+            <image
+              class="svg opacity-30"
+              src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg"
+            />
+          </view>
+        </view>
+        <view class="flex-between p-5 border-b border-gray-50">
+          <text class="text-gray-500">学校</text>
+          <view class="flex items-center gap-2">
+            <text class="text-gray-800">{{ form.school || 'XX大学' }}</text>
+            <image
+              class="svg opacity-30"
+              src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg"
+            />
+          </view>
+        </view>
+        <view class="flex-between p-5">
+          <text class="text-gray-500">宿舍</text>
+          <view class="flex items-center gap-2">
+            <text class="text-gray-800">{{ form.dorm || '3栋502' }}</text>
+            <image
+              class="svg opacity-30"
+              src="https://unpkg.com/lucide-static@latest/icons/chevron-right.svg"
+            />
           </view>
         </view>
       </view>
-      <input
-        class="border border-gray-200 rounded-lg p-4"
-        v-model="form.nickname"
-        placeholder="昵称"
-      />
-      <input
-        class="border border-gray-200 rounded-lg p-4"
-        v-model="form.avatar"
-        placeholder="头像链接"
-      />
-      <picker mode="selector" :range="genders" @change="onGender">
-        <view class="border border-gray-200 rounded-lg p-4 text-gray-600"
-          >性别：{{ genders[form.gender] || '未设置' }}</view
-        >
-      </picker>
-      <picker mode="date" :value="form.birthday" @change="onDate">
-        <view class="border border-gray-200 rounded-lg p-4 text-gray-600"
-          >生日：{{ form.birthday || '未设置' }}</view
-        >
-      </picker>
-      <button class="bg-primary text-white rounded-xl py-3" @tap="onSave">保存</button>
     </view>
   </view>
 </template>
+
 <script>
 import { getProfile, updateProfile } from '@/api/user'
+import { desensitize } from '@/utils/filters.js'
+
 export default {
   data() {
     return {
-      form: { nickname: '', avatar: '', gender: null, birthday: '' },
-      // 后端：0-男，1-女。这里用下标直接对应
-      genders: ['男', '女'],
-      def: '/static/logo.png',
+      user: {},
+      form: {
+        nickname: '',
+        avatar: '',
+        gender: null,
+        school: '',
+        dorm: '',
+      },
+      def: '/static/tabbar/user.png',
     }
   },
   async onLoad() {
     const { data } = await getProfile()
+    this.user = data
     this.form.nickname = data.nickname || ''
     this.form.avatar = data.avatar || ''
     this.form.gender = data.gender ?? null
-    this.form.birthday = data.birthday || ''
+    this.form.school = data.school || ''
+    this.form.dorm = data.dorm || ''
   },
   methods: {
-    onGender(e) {
-      this.form.gender = Number(e.detail.value)
+    desensitize,
+    back() {
+      uni.navigateBack()
     },
-    onDate(e) {
-      this.form.birthday = e.detail.value
-    },
-    async onSave() {
+    async save() {
       await updateProfile(this.form)
       uni.showToast({ title: '已保存' })
       uni.navigateBack()
     },
-    clearAvatar() {
-      this.form.avatar = ''
-    },
-    async chooseAvatar() {
+    async pickAvatar() {
       const chooseRes = await uni.chooseImage({ count: 1, sizeType: ['compressed'] })
       const filePath = chooseRes.tempFilePaths?.[0]
       if (!filePath) return
@@ -100,4 +149,16 @@ export default {
   },
 }
 </script>
-<style></style>
+
+<style>
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+</style>

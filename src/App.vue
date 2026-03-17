@@ -12,4 +12,12 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+/* 全局图标样式 */
+.svg {
+  width: 40rpx;
+  height: 40rpx;
+  display: inline-block;
+  vertical-align: middle;
+}
+</style>
