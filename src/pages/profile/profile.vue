@@ -173,6 +173,8 @@
 import { getProfile, getPortrait } from '@/api/user'
 import { getVipStatus, getMyCoupons } from '@/api/vip'
 
+import { logout as apiLogout } from '@/api/auth'
+
 export default {
   data() {
     return {
@@ -209,12 +211,15 @@ export default {
       if (s.includes('¥') || s.includes('以下')) return 'bg-yellow-50 text-yellow-500'
       return 'bg-gray-100 text-gray-700'
     },
-    logout() {
+    async logout() {
       uni.showModal({
         title: '提示',
         content: '确定要退出登录吗？',
-        success: (res) => {
+        success: async (res) => {
           if (res.confirm) {
+            try {
+              await apiLogout()
+            } catch (e) {}
             uni.removeStorageSync('token')
             uni.reLaunch({ url: '/pages/login/login' })
           }

@@ -21,7 +21,10 @@
     },
     {
       "path": "pages/login/login",
-      "style": { "navigationBarTitleText": "登录" }
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/profile/profile",

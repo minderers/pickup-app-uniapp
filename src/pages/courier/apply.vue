@@ -150,11 +150,28 @@ export default {
           sourceType: ['album', 'camera'],
         })
         const filePath = chooseRes.tempFilePaths?.[0]
-        if (filePath) {
-          this.form[key] = filePath
+        if (!filePath) return
+
+        uni.showLoading({ title: '上传中...' })
+        const uploadRes = await uni.uploadFile({
+          url: 'http://localhost:8088/pickup-app-api/common/upload/img',
+          filePath,
+          name: 'file',
+          header: {
+            Authorization: uni.getStorageSync('token') || '',
+          },
+        })
+        const parsed = JSON.parse(uploadRes.data)
+        if (parsed.code === 0) {
+          this.form[key] = parsed.data
+        } else {
+          uni.showToast({ icon: 'none', title: parsed.msg || '上传失败' })
         }
       } catch (e) {
-        console.error('选择图片失败', e)
+        console.error('上传图片失败', e)
+        uni.showToast({ icon: 'none', title: '上传失败' })
+      } finally {
+        uni.hideLoading()
       }
     },
     async submit() {
@@ -165,14 +182,17 @@ export default {
         return uni.showToast({ icon: 'none', title: '请上传相关照片' })
       }
 
+      uni.showLoading({ title: '提交中...' })
       try {
-        await applyCourier(this.form)
+        await applyCourier() // 目前后端接口不需要参数，只改变 remark 状态
         uni.showToast({ title: '已提交申请' })
         setTimeout(() => {
           uni.navigateBack()
         }, 1500)
       } catch (e) {
-        uni.showToast({ icon: 'none', title: '提交失败，请稍后重试' })
+        console.error(e)
+      } finally {
+        uni.hideLoading()
       }
     },
   },
