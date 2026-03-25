@@ -122,6 +122,7 @@
 
 <script>
 import { usePreferenceStore } from '@/stores/preference'
+import { getPreference, savePreference } from '@/api/user'
 
 export default {
   data() {
@@ -153,10 +154,25 @@ export default {
       return !!this.s.nearOnly
     },
   },
-  onShow() {
-    this.distance = this.nearOnly ? 1000 : 2000
-    if (!this.maxPrice) this.s.setMaxPrice(5)
-    if (!(this.selTypes || []).length) this.s.setServiceTypes(['快递代取', '外卖代取'])
+  async onShow() {
+    // 从后端回填，确保展示与数据库一致
+    try {
+      const res = await getPreference()
+      const data = res?.data || {}
+
+      const serviceTypes = Array.isArray(data.serviceTypes) ? data.serviceTypes : []
+      if (serviceTypes.length) this.s.setServiceTypes(serviceTypes)
+
+      if (data.maxPrice !== undefined && data.maxPrice !== null) this.s.setMaxPrice(data.maxPrice)
+      if (data.nearOnly !== undefined && data.nearOnly !== null) this.s.setNearOnly(data.nearOnly)
+    } catch (e) {
+      // 保底：使用 store 默认值
+      console.error('获取偏好失败', e)
+    } finally {
+      this.distance = this.nearOnly ? 1000 : 2000
+      if (!this.maxPrice) this.s.setMaxPrice(5)
+      if (!(this.selTypes || []).length) this.s.setServiceTypes(['快递代取', '外卖代取'])
+    }
   },
   methods: {
     back() {
@@ -173,11 +189,25 @@ export default {
     onPriceRadio(e) {
       this.s.setMaxPrice(Number(e.detail.value))
     },
-    done() {
-      uni.showToast({ title: '保存成功' })
-      setTimeout(() => {
-        uni.navigateBack()
-      }, 1000)
+    async done() {
+      uni.showLoading({ title: '保存中...' })
+      try {
+        const preference = {
+          serviceTypes: this.selTypes,
+          maxPrice: this.maxPrice,
+          nearOnly: this.nearOnly,
+        }
+        await savePreference(preference)
+        uni.showToast({ title: '保存成功' })
+        setTimeout(() => {
+          uni.navigateBack()
+        }, 1000)
+      } catch (e) {
+        console.error('保存失败', e)
+        uni.showToast({ title: '保存失败', icon: 'none' })
+      } finally {
+        uni.hideLoading()
+      }
     },
   },
 }

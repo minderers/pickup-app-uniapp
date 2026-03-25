@@ -10,57 +10,35 @@
           src="https://unpkg.com/lucide-static@latest/icons/search.svg"
         />
         <input
+          v-model="searchKeyword"
           class="w-full h-18 rounded-full bg-gray-100 pl-12 pr-6 text-sm"
           placeholder="搜索订单、服务..."
+          @confirm="onSearch"
         />
       </view>
-      <view class="relative w-18 h-18 rounded-full bg-gray-100 flex items-center justify-center">
+      <view
+        class="relative w-18 h-18 rounded-full bg-gray-100 flex items-center justify-center"
+        @tap="goMessages"
+      >
         <image
           class="svg"
           mode="aspectFit"
           src="https://unpkg.com/lucide-static@latest/icons/bell.svg"
         />
         <!-- 红点通知 -->
-        <view class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white" />
+        <view
+          v-if="unreadCount > 0"
+          class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"
+        />
       </view>
     </view>
 
     <view class="px-6">
-      <!-- 为你推荐 -->
-      <view class="flex items-center justify-between mt-6 mb-4">
-        <view class="text-18 font-bold text-gray-800">为你推荐</view>
-        <view class="text-sm text-primary" @tap="toPref">调整偏好</view>
-      </view>
-
-      <view
-        class="bg-gradient-to-r from-primary to-purple-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-lg"
-      >
-        <view class="flex items-center gap-4">
-          <view class="p-2 rounded-full bg-white bg-opacity-20 flex items-center justify-center">
-            <image
-              class="svg"
-              mode="aspectFit"
-              src="https://unpkg.com/lucide-static@latest/icons/sparkles.svg"
-            />
-          </view>
-          <view>
-            <view class="text-16 font-bold">个性化推荐</view>
-            <view class="text-xs opacity-80 mt-1">根据您的偏好智能匹配</view>
-          </view>
-        </view>
-        <view class="flex flex-wrap gap-2 mt-6">
-          <text
-            class="px-3 py-1 bg-white bg-opacity-20 rounded-full text-xs"
-            v-for="t in prefTags"
-            :key="t"
-            >{{ t }}</text
-          >
-        </view>
-      </view>
+      <!-- 已移除首页画像偏好卡片 -->
 
       <!-- 快捷服务 -->
       <view class="grid grid-cols-4 gap-4 mt-8 mb-8">
-        <view class="flex flex-col items-center" @tap="go('/pages/orders/create')">
+        <view class="flex flex-col items-center" @tap="goPublish('快递代取')">
           <view class="w-18 h-18 rounded-2xl bg-blue-50 flex items-center justify-center mb-2">
             <image
               class="svg"
@@ -70,7 +48,7 @@
           </view>
           <text class="text-xs text-gray-600">快递代取</text>
         </view>
-        <view class="flex flex-col items-center" @tap="go('/pages/orders/create')">
+        <view class="flex flex-col items-center" @tap="goPublish('外卖代取')">
           <view class="w-18 h-18 rounded-2xl bg-green-50 flex items-center justify-center mb-2">
             <image
               class="svg"
@@ -80,7 +58,7 @@
           </view>
           <text class="text-xs text-gray-600">外卖代取</text>
         </view>
-        <view class="flex flex-col items-center" @tap="go('/pages/orders/create')">
+        <view class="flex flex-col items-center" @tap="goPublish('超市代购')">
           <view class="w-18 h-18 rounded-2xl bg-yellow-50 flex items-center justify-center mb-2">
             <image
               class="svg"
@@ -90,7 +68,7 @@
           </view>
           <text class="text-xs text-gray-600">超市代购</text>
         </view>
-        <view class="flex flex-col items-center" @tap="go('/pages/orders/create')">
+        <view class="flex flex-col items-center" @tap="goPublish('其他服务')">
           <view class="w-18 h-18 rounded-2xl bg-purple-50 flex items-center justify-center mb-2">
             <image
               class="svg"
@@ -102,13 +80,40 @@
         </view>
       </view>
 
-      <!-- 推荐订单 -->
-      <view class="flex items-center justify-between mb-4">
+      <!-- 公告资讯 -->
+      <view class="flex items-center justify-between mt-8 mb-4">
+        <view class="text-18 font-bold text-gray-800">公告资讯</view>
+        <view class="text-sm text-gray-400" @tap="go('/pages/news/list')">查看更多</view>
+      </view>
+      <view v-if="news && news.length" class="space-y-3 mb-8">
+        <view
+          class="bg-white rounded-2xl p-4 flex items-start justify-between shadow-sm"
+          v-for="n in news"
+          :key="n.pkId"
+          @tap="toNewsDetail(n.pkId)"
+        >
+          <view class="flex-1 pr-3">
+            <view class="text-[15px] font-bold text-gray-800 line-clamp-1">{{ n.title }}</view>
+            <view class="text-[12px] text-gray-400 mt-1">{{ dateText(n.createTime) }}</view>
+          </view>
+          <view class="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center">
+            <image
+              class="svg"
+              mode="aspectFit"
+              src="https://unpkg.com/lucide-static@latest/icons/megaphone.svg"
+            />
+          </view>
+        </view>
+      </view>
+      <view v-else class="text-center text-gray-400 text-sm mb-8">暂无公告</view>
+
+      <!-- 推荐订单（仅代取员展示） -->
+      <view v-if="isCourier" class="flex items-center justify-between mb-4">
         <view class="text-18 font-bold text-gray-800">推荐订单</view>
         <view class="text-sm text-gray-400" @tap="toMyOrders">查看更多</view>
       </view>
 
-      <view v-if="recommend.length" class="space-y-4">
+      <view v-if="isCourier && recommend.length" class="space-y-4">
         <view class="bg-white rounded-3xl p-5 shadow-sm" v-for="item in recommend" :key="item.pkId">
           <view class="flex justify-between items-start mb-4">
             <view class="flex items-center gap-2">
@@ -152,6 +157,7 @@
             </view>
             <button
               class="bg-primary text-white text-xs px-6 py-1.5 rounded-full m-0"
+              v-if="isCourier"
               @tap="accept(item.pkId)"
             >
               接取
@@ -159,65 +165,105 @@
           </view>
         </view>
       </view>
-      <view class="list-empty" v-else>暂无推荐订单</view>
+      <view v-if="isCourier && !recommend.length" class="list-empty">暂无推荐订单</view>
     </view>
   </view>
 </template>
 
 <script>
-import { getRecommend, getOrderList } from '@/api/order'
+import { getRecommend } from '@/api/order'
 import { acceptOrder } from '@/api/courier'
 import { getProfile } from '@/api/user'
-import { usePreferenceStore } from '@/stores/preference'
+import { getNewsList } from '@/api/news'
 
 export default {
   data() {
     return {
       recommend: [],
       isCourier: false,
-      pref: null,
+      searchKeyword: '',
+      unreadCount: 0,
+      news: [],
     }
   },
   async onShow() {
-    this.pref = usePreferenceStore()
-    const p = await getProfile()
-    this.isCourier = (p.data?.role ?? 0) === 1
+    try {
+      const p = await getProfile()
+      this.isCourier = (p.data?.role ?? 0) === 1
+    } catch (e) {
+      this.isCourier = false
+    }
+    // 只有代取员才加载推荐订单
     if (this.isCourier) {
-      const { data } = await getRecommend('picker')
-      this.recommend = data || []
+      await this.loadRecommendOrders()
     } else {
-      const { data } = await getOrderList({ page: 1, size: 5 })
-      this.recommend = data.list || []
+      this.recommend = []
+    }
+    try {
+      const params = { page: 1, size: 5, order: 'desc' }
+      if (this.searchKeyword && String(this.searchKeyword).trim().length > 0) {
+        params.keyword = String(this.searchKeyword).trim()
+      }
+      const { data: nl } = await getNewsList(params)
+      this.news = Array.isArray(nl?.list) ? nl.list.slice(0, 3) : []
+    } catch (e) {
+      this.news = []
     }
   },
-  computed: {
-    prefTags() {
-      const s = this.pref
-      if (!s) return ['快递代取', '1公里内', '¥5以下']
-      const tags = []
-      for (const t of s.serviceTypes || []) tags.push(t)
-      if (s.nearOnly) tags.push('1公里内')
-      if (s.maxPrice) tags.push(`¥${s.maxPrice}以下`)
-      return tags.length ? tags.slice(0, 6) : ['快递代取', '1公里内', '¥5以下']
-    },
-  },
   methods: {
+    async loadRecommendOrders() {
+      try {
+        console.log('Loading recommend orders with type: collaborative')
+        const { data: rec } = await getRecommend('collaborative') // 始终调用协同过滤推荐接口
+        const all = Array.isArray(rec) ? rec : rec?.list || []
+        this.recommend = all.slice(0, 5) // 仍然只显示前5个
+        console.log('Loaded recommendations:', this.recommend)
+      } catch (e) {
+        this.recommend = []
+        console.error('加载推荐订单失败', e)
+      }
+    },
+    async onSearch() {
+      try {
+        const params = { page: 1, size: 5, order: 'desc' }
+        if (this.searchKeyword && String(this.searchKeyword).trim().length > 0) {
+          params.keyword = String(this.searchKeyword).trim()
+        }
+        const { data: nl } = await getNewsList(params)
+        this.news = Array.isArray(nl?.list) ? nl.list.slice(0, 3) : []
+      } catch (e) {
+        this.news = []
+      }
+    },
+    goMessages() {
+      this.go('/pages/news/list')
+    },
+    toNewsDetail(id) {
+      this.go('/pages/news/detail?id=' + id)
+    },
+    dateText(v) {
+      if (!v) return ''
+      return String(v).slice(0, 10)
+    },
     go(url) {
       if (
         url === '/pages/index/index' ||
         url === '/pages/orders/list' ||
-        url === '/pages/profile/profile'
+        url === '/pages/profile/profile' ||
+        url === '/pages/publish/index' // publish 页面现在也是 tabbar 页面
       ) {
         uni.switchTab({ url })
       } else {
         uni.navigateTo({ url })
       }
     },
-    toPref() {
-      uni.navigateTo({ url: '/pages/profile/preference' })
+    goPublish(type) {
+      uni.switchTab({ url: `/pages/publish/index?type=${type}` })
     },
     toMyOrders() {
-      uni.switchTab({ url: '/pages/orders/list' })
+      uni.navigateTo({
+        url: '/pages/orders/list', // 跳转到所有待接订单列表页
+      })
     },
     async accept(id) {
       await acceptOrder(id)

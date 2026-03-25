@@ -45,8 +45,17 @@
       }
     },
     {
+      "path": "pages/orders/list",
+      "style": {
+        "navigationBarTitleText": "待接订单"
+      }
+    },
+    {
       "path": "pages/news/list",
-      "style": { "navigationBarTitleText": "公告资讯" }
+      "style": {
+        "navigationBarTitleText": "公告资讯",
+        "navigationStyle": "custom"
+      }
     },
     {
       "path": "pages/news/detail",
@@ -61,11 +70,7 @@
       "style": { "navigationBarTitleText": "我的优惠券" }
     },
     {
-      "path": "pages/orders/create",
-      "style": { "navigationBarTitleText": "发布订单" }
-    },
-    {
-      "path": "pages/orders/list",
+      "path": "pages/orders/mylist",
       "style": { "navigationBarTitleText": "我的订单" }
     },
     {
@@ -75,8 +80,7 @@
     {
       "path": "pages/publish/index",
       "style": {
-        "navigationBarTitleText": "发布订单",
-        "navigationStyle": "default"
+        "navigationBarTitleText": "发布订单"
       }
     },
     {
@@ -120,7 +124,7 @@
         "selectedIconPath": "static/tabbar/shouye1-copy.png"
       },
       {
-        "pagePath": "pages/orders/list",
+        "pagePath": "pages/orders/mylist",
         "text": "订单",
         "iconPath": "static/tabbar/dingdan.png",
         "selectedIconPath": "static/tabbar/dingdan-copy.png"

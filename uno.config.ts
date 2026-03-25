@@ -55,6 +55,13 @@ export default defineConfig({
 
   // 使用 rules 代替 shortcuts
   rules: [
+    // 常用小尺寸图标（用于 lucide 图标、输入框尾部按钮等）
+    ['w-3', { width: '12rpx' }],
+    ['h-3', { height: '12rpx' }],
+    ['w-4', { width: '16rpx' }],
+    ['h-4', { height: '16rpx' }],
+    ['w-6', { width: '24rpx' }],
+    ['h-6', { height: '24rpx' }],
     ['h-18', { height: '72rpx' }],
     ['w-18', { width: '72rpx' }],
     ['w-24', { width: '96rpx' }],

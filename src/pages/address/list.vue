@@ -38,6 +38,7 @@
           class="bg-white rounded-3xl p-6 shadow-sm flex items-center justify-between"
           v-for="a in list"
           :key="a.pkId"
+          @tap="selectAddress(a)"
         >
           <view class="flex-1 mr-4">
             <view class="flex items-center gap-2 mb-2">
@@ -182,6 +183,12 @@ export default {
         detail: '',
         isDefault: 0,
       },
+      fromOrderCreate: false, // 新增标志，判断是否从订单创建页跳转而来
+    }
+  },
+  async onLoad(q) {
+    if (q?.from === 'orderCreate') {
+      this.fromOrderCreate = true
     }
   },
   async onShow() {
@@ -207,55 +214,50 @@ export default {
       }
       this.showModal = true
     },
-    edit(item) {
-      this.form = { ...item }
+    // 新增方法：处理地址选择
+    selectAddress(address) {
+      if (this.fromOrderCreate) {
+        uni.$emit('selectAddress', address)
+        uni.navigateBack()
+      } else {
+        // 如果不是从订单创建页跳转，则执行编辑操作
+        this.edit(address)
+      }
+    },
+    edit(a) {
+      this.form = { ...a }
       this.showModal = true
+    },
+    async del(id) {
+      uni.showModal({
+        title: '确认删除',
+        content: '确定要删除该地址吗？',
+        success: async (res) => {
+          if (res.confirm) {
+            await removeAddress(id)
+            uni.showToast({ title: '删除成功' })
+            this.fetchList()
+          }
+        },
+      })
     },
     closeModal() {
       this.showModal = false
     },
     async onSave() {
       if (!this.form.name || !this.form.phone || !this.form.region || !this.form.detail) {
-        return uni.showToast({ title: '请完善地址信息', icon: 'none' })
+        uni.showToast({ title: '请填写完整信息', icon: 'none' })
+        return
       }
-      if (!/^1[3-9]\d{9}$/.test(this.form.phone)) {
-        return uni.showToast({ title: '请输入正确的手机号', icon: 'none' })
+      if (this.form.pkId) {
+        await updateAddress(this.form.pkId, this.form)
+        uni.showToast({ title: '更新成功' })
+      } else {
+        await addAddress(this.form)
+        uni.showToast({ title: '新增成功' })
       }
-
-      uni.showLoading({ title: '保存中...' })
-      try {
-        const payload = {
-          name: this.form.name,
-          phone: this.form.phone,
-          region: this.form.region,
-          detail: this.form.detail,
-          isDefault: this.form.isDefault,
-        }
-        if (this.form.pkId) {
-          await updateAddress(this.form.pkId, payload)
-        } else {
-          await addAddress(payload)
-        }
-        uni.showToast({ title: '保存成功' })
-        this.closeModal()
-        this.fetchList()
-      } catch (e) {
-        console.error(e)
-      } finally {
-        uni.hideLoading()
-      }
-    },
-    async del(id) {
-      uni.showModal({
-        title: '提示',
-        content: '确定要删除该地址吗？',
-        success: async (res) => {
-          if (res.confirm) {
-            await removeAddress(id)
-            this.fetchList()
-          }
-        },
-      })
+      this.closeModal()
+      this.fetchList()
     },
   },
 }

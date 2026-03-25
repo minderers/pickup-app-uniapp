@@ -17,14 +17,12 @@
       <view v-if="list.length" class="space-y-6">
         <view class="bg-white rounded-3xl p-6 shadow-sm" v-for="o in list" :key="o.pkId">
           <view class="flex justify-between items-start mb-6">
-            <view class="flex items-center gap-3">
+              <view class="flex items-center gap-3">
               <view class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
-                <image class="svg" mode="aspectFit" :src="guessIcon(o.content)" />
+                <image class="svg" mode="aspectFit" :src="guessIcon(o.orderType)" />
               </view>
-              <view class="text-16 font-bold text-gray-800">{{ guessType(o.content) }}</view>
-              <text class="text-[10px] px-2 py-0.5 rounded ml-1" :class="matchChipCls(o)">{{
-                matchChipText(o)
-              }}</text>
+              <view class="text-16 font-bold text-gray-800">{{ o.orderType || '快递代取' }}</view>
+              <text class="text-[10px] px-2 py-0.5 rounded ml-1" :class="matchChipCls(o)">{{ o.matchScore || 0 }}分</text>
             </view>
             <view class="text-right">
               <view class="text-18 font-bold text-primary">¥{{ o.price || 0 }}</view>
@@ -46,7 +44,7 @@
           <view class="mb-6">
             <view class="text-xs text-gray-400 leading-relaxed">
               <text>推荐理由：</text>
-              <text>{{ reasonText(o) }}</text>
+              <text>{{ o.recommendationReason || '' }}</text>
             </view>
           </view>
 
@@ -105,10 +103,10 @@ export default {
       if (c.includes('超市') || c.includes('代购')) return '超市代购'
       return '快递代取'
     },
-    guessIcon(content) {
-      const t = this.guessType(content)
-      if (t === '外卖代取') return 'https://unpkg.com/lucide-static@latest/icons/coffee.svg'
-      if (t === '超市代购') return 'https://unpkg.com/lucide-static@latest/icons/shopping-bag.svg'
+    guessIcon(orderType) {
+      const t = String(orderType || '')
+      if (t.includes('外卖')) return 'https://unpkg.com/lucide-static@latest/icons/coffee.svg'
+      if (t.includes('超市') || t.includes('代购')) return 'https://unpkg.com/lucide-static@latest/icons/shopping-bag.svg'
       return 'https://unpkg.com/lucide-static@latest/icons/package.svg'
     },
     etaText(d) {
@@ -121,13 +119,8 @@ export default {
       return p >= 5 ? '类型匹配' : '距离匹配'
     },
     matchChipCls(o) {
-      const p = Number(o?.price || 0)
-      return p >= 5 ? 'text-purple-500 bg-purple-50' : 'text-green-500 bg-green-50'
-    },
-    reasonText(o) {
-      const p = Number(o?.price || 0)
-      if (p >= 5) return '您历史接单中80%为外卖代取，经验丰富'
-      return '距离您当前位置500米，符合您的接单偏好'
+      const s = Number(o?.matchScore || 0)
+      return s >= 80 ? 'text-purple-500 bg-purple-50' : 'text-green-500 bg-green-50'
     },
     pickFrom(content) {
       const c = String(content || '')

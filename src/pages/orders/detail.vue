@@ -7,7 +7,71 @@
         <text class="px-2 py-1 bg-white bg-opacity-20 rounded-full text-xs">{{
           statusText(info.status)
         }}</text>
-        <text class="text-sm opacity-90">{{ etaHint(info.duration, info.status) }}</text>
+        <text class="text-sm opacity-90">{{
+          progress.message || etaHint(info.duration, info.status)
+        }}</text>
+      </view>
+
+      <!-- 底部操作按钮 -->
+      <view
+        v-if="info.status === 0 || info.status === 1 || info.status === 2"
+        class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-lg flex gap-3"
+      >
+        <button
+          v-if="info.status === 0"
+          class="flex-1 py-3 rounded-xl bg-primary text-white font-bold"
+          @tap="payOrderAction"
+        >
+          立即支付
+        </button>
+        <button
+          v-if="info.status === 0 || info.status === 1"
+          class="flex-1 py-3 rounded-xl bg-gray-200 text-gray-800 font-bold"
+          @tap="cancelOrderAction"
+        >
+          取消订单
+        </button>
+      </view>
+    </view>
+
+    <!-- 进度条 -->
+    <view class="px-6 py-8">
+      <view class="flex items-center justify-between mb-6">
+        <view class="flex flex-col items-center flex-1">
+          <view
+            class="w-10 h-10 rounded-full bg-primary text-white flex-center text-sm font-bold mb-2"
+            >✓</view
+          >
+          <text class="text-xs text-gray-600">已发布</text>
+        </view>
+        <view
+          class="flex-1 h-1 bg-gray-200 mx-2"
+          :class="Number(info.status) >= 2 ? 'bg-primary' : ''"
+        ></view>
+        <view class="flex flex-col items-center flex-1">
+          <view
+            :class="[
+              'w-10 h-10 rounded-full flex-center text-sm font-bold mb-2',
+              Number(info.status) >= 2 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-400',
+            ]"
+            >✓</view
+          >
+          <text class="text-xs text-gray-600">已接单</text>
+        </view>
+        <view
+          class="flex-1 h-1 bg-gray-200 mx-2"
+          :class="Number(info.status) >= 3 ? 'bg-primary' : ''"
+        ></view>
+        <view class="flex flex-col items-center flex-1">
+          <view
+            :class="[
+              'w-10 h-10 rounded-full flex-center text-sm font-bold mb-2',
+              Number(info.status) >= 3 ? 'bg-primary text-white' : 'bg-gray-200 text-gray-400',
+            ]"
+            >✓</view
+          >
+          <text class="text-xs text-gray-600">已完成</text>
+        </view>
       </view>
     </view>
 
@@ -22,7 +86,7 @@
           </view>
           <view class="flex justify-between">
             <text class="text-sm text-gray-600">发布时间</text>
-            <text class="text-sm text-gray-800">{{ info.createTime || '-' }}</text>
+            <text class="text-sm text-gray-800">{{ formatTime(info.createTime) }}</text>
           </view>
           <view class="flex justify-between">
             <text class="text-sm text-gray-600">取件时间</text>
@@ -53,14 +117,21 @@
         </view>
       </view>
 
-      <view class="bg-white rounded-2xl p-5 shadow-sm">
+      <view v-if="Number(info.pickerId) > 0" class="bg-white rounded-2xl p-5 shadow-sm">
         <view class="text-sm font-medium text-gray-500 mb-4">接取人信息</view>
         <view class="flex items-center gap-3">
-          <image class="w-12 h-12 rounded-full bg-gray-100" :src="pickerAvatar(info.pickerId)" />
+          <image
+            class="w-12 h-12 rounded-full bg-gray-100"
+            :src="courierInfo.avatar || pickerAvatar(info.pickerId)"
+          />
           <view>
-            <view class="font-medium text-gray-800">{{ pickerName(info.pickerId) }}</view>
+            <view class="font-medium text-gray-800">{{
+              courierInfo.nickname || pickerName(info.pickerId)
+            }}</view>
             <view class="text-xs text-gray-500"
-              >已完成{{ pickerDone(info.pickerId) }}单，好评率{{ pickerRate(info.pickerId) }}%</view
+              >已完成{{ courierInfo.completedOrders || pickerDone(info.pickerId) }}单，好评率{{
+                courierInfo.rating || pickerRate(info.pickerId)
+              }}%</view
             >
           </view>
         </view>
@@ -69,18 +140,81 @@
   </view>
 </template>
 <script>
-import { getOrderDetail } from '@/api/order'
+import { getOrderDetail, getOrderProgress, payOrder, cancelOrder } from '@/api/order'
+import { getCourierInfo } from '@/api/courier'
 import { orderStatusText, orderStatusChipClass } from '@/utils/order'
 export default {
   data() {
-    return { info: {}, step: 0 }
+    return { info: {}, step: 0, progress: {}, courierInfo: {}, orderId: null }
   },
   async onLoad(q) {
-    const { data } = await getOrderDetail(q.id)
-    this.info = data || {}
-    this.step = Number(this.info.status || 0)
+    this.orderId = q.id
+    console.log('Requesting order detail for pkId:', this.orderId) // 添加这一行
+    await this.loadOrderDetail()
+  },
+  onShow() {
+    // 页面显示时，如果订单ID已存在，则刷新订单详情
+    if (this.orderId) {
+      this.loadOrderDetail()
+    }
   },
   methods: {
+    async loadOrderDetail() {
+      const { data } = await getOrderDetail(this.orderId)
+      this.info = data || {}
+      this.step = Number(this.info.status || 0)
+      await this.loadProgress()
+      await this.loadCourierInfo()
+    },
+    async loadProgress() {
+      try {
+        const { data } = await getOrderProgress(this.info.pkId)
+        this.progress = data.data || {}
+      } catch (e) {
+        console.error('加载进度失败', e)
+      }
+    },
+    async loadCourierInfo() {
+      const pid = Number(this.info.pickerId || 0)
+      if (!pid) return
+      try {
+        const { data } = await getCourierInfo(pid)
+        this.courierInfo = data || {}
+      } catch (e) {
+        // courier 信息不是必须字段（可能角色不匹配等），避免页面硬崩
+        this.courierInfo = {}
+      }
+    },
+    async payOrderAction() {
+      uni.showModal({
+        title: '确认支付',
+        content: `是否立即支付订单 ¥${this.info.price}？`,
+        success: async (res) => {
+          if (res.confirm) {
+            await payOrder(this.orderId)
+            uni.showToast({ title: '支付成功', icon: 'success' })
+            await this.loadOrderDetail() // 刷新订单详情
+          }
+        },
+      })
+    },
+    async cancelOrderAction() {
+      uni.showModal({
+        title: '确认取消',
+        content: '确定要取消该订单吗？',
+        success: async (res) => {
+          if (res.confirm) {
+            await cancelOrder(this.orderId)
+            uni.showToast({ title: '订单已取消', icon: 'success' })
+            await this.loadOrderDetail() // 刷新订单详情
+          }
+        },
+      })
+    },
+    formatTime(t) {
+      if (!t) return '-'
+      return String(t).slice(0, 16)
+    },
     statusText(s) {
       return orderStatusText(s)
     },
