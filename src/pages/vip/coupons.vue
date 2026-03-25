@@ -3,25 +3,36 @@
     <view class="bg-white p-6 shadow-sm sticky top-0 z-10">
       <view class="text-18 font-semibold text-gray-800">优惠券</view>
       <view class="flex gap-6 mt-4 border-b border-gray-100">
-        <view :class="tabCls(tab==='usable')" @tap="setTab('usable')">可用</view>
-        <view :class="tabCls(tab==='used')" @tap="setTab('used')">已使用</view>
-        <view :class="tabCls(tab==='expired')" @tap="setTab('expired')">已过期</view>
+        <view :class="tabCls(tab === 'usable')" @tap="setTab('usable')">可用</view>
+        <view :class="tabCls(tab === 'used')" @tap="setTab('used')">已使用</view>
+        <view :class="tabCls(tab === 'expired')" @tap="setTab('expired')">已过期</view>
       </view>
     </view>
 
     <view class="p-6 space-y-4">
-      <view v-for="c in displayList" :key="c.pkId" class="rounded-2xl p-6 text-white shadow-lg" :class="couponBg(c)">
+      <view
+        v-for="c in displayList"
+        :key="c.pkId"
+        class="rounded-2xl p-6 text-white shadow-lg"
+        :class="couponBg(c)"
+      >
         <view class="flex justify-between items-start mb-4">
           <view>
-            <view class="text-24 font-bold">权益券</view>
-            <view class="text-sm opacity-80 mt-1">#{{ c.interestId }}</view>
+            <view class="text-24 font-bold">{{ c.name }}</view>
+            <view class="text-sm opacity-80 mt-1"
+              >面额：¥{{ Number(c.discount || 0).toFixed(2) }}</view
+            >
           </view>
-          <text class="text-xs bg-white bg-opacity-20 px-3 py-1 rounded-full">{{ badgeText(c) }}</text>
+          <text class="text-xs bg-white bg-opacity-20 px-3 py-1 rounded-full">{{
+            badgeText(c)
+          }}</text>
         </view>
 
         <view class="bg-white bg-opacity-10 rounded-xl p-4 mb-4">
-          <view class="text-sm opacity-90 mb-2">权益描述</view>
-          <view class="text-xs opacity-80">享受平台专属优惠和权益</view>
+          <view class="text-sm opacity-90 mb-2">使用说明</view>
+          <view class="text-xs opacity-80"
+            >本券为抵扣券，实付金额自动按面额抵扣。有效期{{ c.duration || 0 }}天。</view
+          >
         </view>
 
         <view class="flex justify-between items-end">
@@ -36,27 +47,44 @@
         </view>
       </view>
 
-      <button
-        v-if="tab === 'usable'"
-        class="w-full py-4 border border-dashed border-gray-300 text-gray-500 rounded-lg mt-6"
-        @tap="claim"
-      >
-        + 领取优惠券
-      </button>
+      <!-- 领取按钮已移除：改由会员页开通获得 -->
 
       <view class="list-empty" v-if="!displayList.length">暂无优惠券</view>
     </view>
   </view>
 </template>
 <script>
-import { getMyCoupons } from '@/api/vip'
+import { getMyCoupons, getInterestDetail } from '@/api/order'
 export default {
   data() {
     return { list: [], tab: 'usable' }
   },
   async onShow() {
-    const { data } = await getMyCoupons()
-    this.list = data || []
+    try {
+      const { data } = await getMyCoupons()
+      const raw = Array.isArray(data) ? data : []
+      const details = await Promise.all(
+        raw.map((x) =>
+          getInterestDetail(x.interestId)
+            .then((res) => res.data)
+            .catch(() => null),
+        ),
+      )
+      this.list = raw.map((x, i) => {
+        const d = details[i]
+        return {
+          pkId: x.pkId,
+          interestId: x.interestId,
+          endTime: x.endTime,
+          status: x.status,
+          name: d?.name || '—',
+          discount: d?.price != null ? Number(d.price) : 0,
+          duration: d?.duration || 0,
+        }
+      })
+    } catch (e) {
+      this.list = []
+    }
   },
   computed: {
     displayList() {
@@ -78,10 +106,11 @@ export default {
       ]
     },
     couponBg(c) {
-      const id = Number(c?.interestId || 0)
-      if (id % 3 === 1) return 'bg-gradient-to-r from-primary to-purple-600'
-      if (id % 3 === 2) return 'bg-gradient-to-r from-green-400 to-emerald-500'
-      return 'bg-gradient-to-r from-orange-400 to-red-500'
+      const amt = Number(c?.discount || 0)
+      if (c.status === 2) return 'bg-gradient-to-r from-gray-400 to-gray-500'
+      if (amt >= 5) return 'bg-gradient-to-r from-green-400 to-emerald-500'
+      if (amt >= 2) return 'bg-gradient-to-r from-primary to-purple-600'
+      return 'bg-gradient-to-r from-blue-400 to-indigo-500'
     },
     badgeText(c) {
       if (this.tab === 'usable') return '可用'
@@ -96,9 +125,6 @@ export default {
     useCoupon(id) {
       uni.showToast({ title: '优惠券已应用到订单', icon: 'success' })
       // 实际应用中可以保存到本地或发送到后端
-    },
-    claim() {
-      uni.showToast({ icon: 'none', title: '暂无可领取的优惠券' })
     },
   },
 }

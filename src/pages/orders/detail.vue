@@ -117,6 +117,38 @@
         </view>
       </view>
 
+      <!-- 价格明细 -->
+      <view class="bg-white rounded-2xl p-5 shadow-sm">
+        <view class="text-sm font-medium text-gray-500 mb-4">价格明细</view>
+        <view class="space-y-3">
+          <view class="flex justify-between">
+            <text class="text-sm text-gray-600">商品原价</text>
+            <text class="text-sm text-gray-800">¥{{ originalAmount() }}</text>
+          </view>
+          <view v-if="coupon" class="flex justify-between items-center">
+            <view class="flex items-center gap-2">
+              <text class="text-sm text-gray-600">优惠券</text>
+              <text class="px-2 py-0.5 bg-purple-50 text-purple-500 text-[10px] rounded-md">
+                {{ coupon.name }}
+              </text>
+            </view>
+            <text class="text-sm text-green-600">-¥{{ discountAmount().toFixed(2) }}</text>
+          </view>
+          <view class="flex justify-between">
+            <text class="text-sm text-gray-600">实付金额</text>
+            <text class="text-sm font-bold text-primary"
+              >¥{{ Number(info.price || 0).toFixed(2) }}</text
+            >
+          </view>
+          <view v-if="coupon" class="flex justify-between">
+            <text class="text-xs text-gray-400">券有效期</text>
+            <text class="text-xs text-gray-600">{{
+              String(coupon.endTime || '').slice(0, 10)
+            }}</text>
+          </view>
+        </view>
+      </view>
+
       <view v-if="Number(info.pickerId) > 0" class="bg-white rounded-2xl p-5 shadow-sm">
         <view class="text-sm font-medium text-gray-500 mb-4">接取人信息</view>
         <view class="flex items-center gap-3">
@@ -140,12 +172,18 @@
   </view>
 </template>
 <script>
-import { getOrderDetail, getOrderProgress, payOrder, cancelOrder } from '@/api/order'
+import {
+  getOrderDetail,
+  getOrderProgress,
+  payOrder,
+  cancelOrder,
+  getCouponDetail,
+} from '@/api/order'
 import { getCourierInfo } from '@/api/courier'
 import { orderStatusText, orderStatusChipClass } from '@/utils/order'
 export default {
   data() {
-    return { info: {}, step: 0, progress: {}, courierInfo: {}, orderId: null }
+    return { info: {}, step: 0, progress: {}, courierInfo: {}, orderId: null, coupon: null }
   },
   async onLoad(q) {
     this.orderId = q.id
@@ -163,6 +201,16 @@ export default {
       const { data } = await getOrderDetail(this.orderId)
       this.info = data || {}
       this.step = Number(this.info.status || 0)
+      if (Number(this.info.couponId || 0) > 0) {
+        try {
+          const { data: c } = await getCouponDetail(this.info.couponId)
+          this.coupon = c || null
+        } catch (e) {
+          this.coupon = null
+        }
+      } else {
+        this.coupon = null
+      }
       await this.loadProgress()
       await this.loadCourierInfo()
     },
@@ -277,6 +325,15 @@ export default {
       const p = Number(pid || 0)
       if (!p) return 0
       return 90 + (p % 9)
+    },
+    // 价格明细
+    discountAmount() {
+      const d = this.coupon?.discount
+      return Number(d || 0)
+    },
+    originalAmount() {
+      const p = Number(this.info.price || 0)
+      return (p + this.discountAmount()).toFixed(2)
     },
   },
 }

@@ -20,3 +20,8 @@ export const reviewOrder = (id, data) => http({ url: `order/${id}/review`, metho
 export const getOrderStats = () => http({ url: 'order/stats', method: 'GET' })
 export const getMyCoupons = () => http({ url: 'vip/my-coupons', method: 'GET' })
 export const getCouponDetail = (id) => http({ url: `vip/coupon/${id}`, method: 'GET' })
+export const getVipProducts = () => http({ url: 'vip/products', method: 'GET' })
+export const getVipStatus = () => http({ url: 'vip/status', method: 'GET' })
+export const openVip = (vipId) =>
+  http({ url: `vip/open?vipId=${encodeURIComponent(vipId)}`, method: 'POST' })
+export const getInterestDetail = (id) => http({ url: `vip/interest/${id}`, method: 'GET' })
