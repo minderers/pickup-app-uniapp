@@ -78,12 +78,8 @@
 
           <view class="flex justify-between items-center pt-4 border-t border-gray-50">
             <view class="flex items-center gap-2">
-              <image
-                class="svg rounded-full bg-gray-100"
-                mode="aspectFill"
-                :src="avatarFallback(o.userId)"
-              />
-              <text class="text-xs text-gray-500">同学{{ alpha(o.userId) }}</text>
+              <image class="svg rounded-full bg-gray-100" mode="aspectFill" :src="publisherAvatar(o)" />
+              <text class="text-xs text-gray-500">{{ publisherName(o) }}</text>
             </view>
             <button
               class="bg-primary text-white text-xs px-8 py-2 rounded-full m-0"
@@ -157,16 +153,11 @@ export default {
       const id = Number(o?.pkId || 0)
       return `202405${String(id).padStart(5, '0')}`
     },
-    avatarFallback(uid) {
-      const u = Number(uid || 0)
-      return u % 2 === 0
-        ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
-        : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'
+    publisherAvatar(order) {
+      return order?.publisherAvatar || 'https://unpkg.com/lucide-static@latest/icons/user.svg'
     },
-    alpha(uid) {
-      const u = Number(uid || 0)
-      const list = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      return list[(u || 1) % list.length]
+    publisherName(order) {
+      return order?.publisherNickname || '发布者'
     },
   },
 }

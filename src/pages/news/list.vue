@@ -1,16 +1,5 @@
 <template>
   <view class="pb-20">
-    <!-- 顶部导航（与设计稿一致：仅标题） -->
-    <view class="bg-white shadow-sm p-4 sticky top-0 z-10">
-      <view class="flex items-center justify-between">
-        <button class="text-gray-600" @tap="back">
-          <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
-        </button>
-        <view class="text-lg font-semibold text-gray-800">公告咨询</view>
-        <view class="w-5"></view>
-      </view>
-    </view>
-
     <view class="p-6">
       <view class="flex gap-3 mb-4">
         <input

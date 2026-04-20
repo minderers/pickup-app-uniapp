@@ -53,8 +53,7 @@
     {
       "path": "pages/news/list",
       "style": {
-        "navigationBarTitleText": "公告资讯",
-        "navigationStyle": "custom"
+        "navigationBarTitleText": "公告资讯"
       }
     },
     {
@@ -86,8 +85,7 @@
     {
       "path": "pages/courier/waiting",
       "style": {
-        "navigationBarTitleText": "待接订单",
-        "navigationStyle": "custom"
+        "navigationBarTitleText": "待接订单"
       }
     },
     {

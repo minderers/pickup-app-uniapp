@@ -125,7 +125,7 @@
             </view>
             <view class="text-right">
               <view class="text-18 font-bold text-primary">¥{{ item.price || 0 }}</view>
-              <view class="text-[10px] text-gray-400 mt-1">30分钟内</view>
+              <view class="text-[10px] text-gray-400 mt-1">30钟内</view>
             </view>
           </view>
 
@@ -149,11 +149,8 @@
 
           <view class="flex items-center justify-between pt-4 border-t border-gray-50">
             <view class="flex items-center gap-2">
-              <image
-                class="svg rounded-full bg-gray-100"
-                src="https://unpkg.com/lucide-static@latest/icons/user.svg"
-              />
-              <text class="text-xs text-gray-500">同学{{ alpha(item.pkId) }}</text>
+              <image class="svg rounded-full bg-gray-100" :src="publisherAvatar(item)" />
+              <text class="text-xs text-gray-500">{{ publisherName(item) }}</text>
             </view>
             <button
               class="bg-primary text-white text-xs px-6 py-1.5 rounded-full m-0"
@@ -293,9 +290,11 @@ export default {
       const m = c.match(/送达地点[:：]\s*([^|]+)/)
       return (m?.[1] || '学生宿舍3栋').trim()
     },
-    alpha(id) {
-      const chars = 'ABCDEFGH'
-      return chars[id % chars.length] || 'A'
+    publisherAvatar(order) {
+      return order?.publisherAvatar || 'https://unpkg.com/lucide-static@latest/icons/user.svg'
+    },
+    publisherName(order) {
+      return order?.publisherNickname || '发布者'
     },
   },
 }

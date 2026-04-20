@@ -1,18 +1,5 @@
 <template>
   <view class="min-h-screen bg-gray-50 pb-32">
-    <!-- 顶部导航栏 -->
-    <view
-      class="bg-white px-6 pt-12 pb-4 sticky top-0 z-50 flex items-center justify-between shadow-sm"
-    >
-      <view class="flex items-center gap-4" @tap="back">
-        <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
-      </view>
-      <view class="text-18 font-bold text-gray-800">待接订单</view>
-      <view @tap="onFilter">
-        <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/filter.svg" />
-      </view>
-    </view>
-
     <view class="p-6">
       <view v-if="list.length" class="space-y-6">
         <view class="bg-white rounded-3xl p-6 shadow-sm" v-for="o in list" :key="o.pkId">
@@ -50,12 +37,8 @@
 
           <view class="flex justify-between items-center pt-4 border-t border-gray-50">
             <view class="flex items-center gap-2">
-              <image
-                class="svg rounded-full bg-gray-100"
-                mode="aspectFill"
-                :src="avatarFallback(o.userId)"
-              />
-              <text class="text-xs text-gray-500">同学{{ alpha(o.userId) }}</text>
+              <image class="svg rounded-full bg-gray-100" mode="aspectFill" :src="publisherAvatar(o)" />
+              <text class="text-xs text-gray-500">{{ publisherName(o) }}</text>
             </view>
             <button
               class="bg-primary text-white text-xs px-8 py-2 rounded-full m-0"
@@ -85,23 +68,11 @@ export default {
     this.list = data.list || []
   },
   methods: {
-    back() {
-      uni.navigateBack()
-    },
     async accept(id) {
       await acceptOrder(id)
       uni.showToast({ title: '接单成功' })
       const { data } = await getWaitingOrders({ page: 1, size: 20 })
       this.list = data.list || []
-    },
-    onFilter() {
-      uni.showToast({ icon: 'none', title: '展示筛选功能' })
-    },
-    guessType(content) {
-      const c = String(content || '')
-      if (c.includes('外卖')) return '外卖代取'
-      if (c.includes('超市') || c.includes('代购')) return '超市代购'
-      return '快递代取'
     },
     guessIcon(orderType) {
       const t = String(orderType || '')
@@ -132,16 +103,11 @@ export default {
       const m = c.match(/送达地点[:：]\s*([^|]+)/)
       return (m?.[1] || '学生宿舍3栋').trim()
     },
-    avatarFallback(uid) {
-      const u = Number(uid || 0)
-      return u % 2 === 0
-        ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop&crop=face'
-        : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face'
+    publisherAvatar(order) {
+      return order?.publisherAvatar || 'https://unpkg.com/lucide-static@latest/icons/user.svg'
     },
-    alpha(uid) {
-      const u = Number(uid || 0)
-      const list = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-      return list[(u || 1) % list.length]
+    publisherName(order) {
+      return order?.publisherNickname || '发布者'
     },
   },
 }

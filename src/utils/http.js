@@ -1,6 +1,7 @@
 import { useUserStore } from '@/stores/user'
 // 这里也可以根据实际情况修改成线上接口地址
 const baseURL = 'http://localhost:8088/pickup-app-api/'
+let isHandlingAuthError = false
 
 const joinURL = (base, url) => {
   if (typeof url !== 'string' || url.length === 0) return base
@@ -30,9 +31,22 @@ export const http = (options) => {
 
   // 定义统一的登出跳转逻辑
   const handleAuthError = () => {
+    if (isHandlingAuthError) return
+    isHandlingAuthError = true
+
     const userStore = useUserStore()
     userStore.clearUserInfo()
-    uni.reLaunch({ url: '/pages/login/login' })
+
+    uni.showToast({
+      icon: 'none',
+      title: '登录已过期，请重新登录',
+      duration: 1500,
+    })
+
+    setTimeout(() => {
+      uni.reLaunch({ url: '/pages/login/login' })
+      isHandlingAuthError = false
+    }, 1500)
   }
 
   // 1. 返回 Promise 对象

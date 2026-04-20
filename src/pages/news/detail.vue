@@ -1,14 +1,5 @@
 <template>
   <view class="min-h-screen bg-gray-50 pb-20">
-    <!-- 顶部导航 -->
-    <view class="bg-white px-6 pt-12 pb-4 sticky top-0 z-50 flex items-center justify-between shadow-sm">
-      <view class="flex items-center gap-4" @tap="back">
-        <image class="svg" src="https://unpkg.com/lucide-static@latest/icons/arrow-left.svg" />
-      </view>
-      <view class="text-18 font-bold text-gray-800">公告详情</view>
-      <view class="w-10"></view>
-    </view>
-
     <view class="p-6">
       <view class="bg-white rounded-3xl p-6 shadow-sm">
         <!-- 标题 -->

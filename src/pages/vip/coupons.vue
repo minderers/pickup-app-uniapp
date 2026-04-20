@@ -124,7 +124,6 @@ export default {
     },
     useCoupon(id) {
       uni.showToast({ title: '优惠券已应用到订单', icon: 'success' })
-      // 实际应用中可以保存到本地或发送到后端
     },
   },
 }

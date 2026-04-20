@@ -1,13 +1,5 @@
 <template>
   <view class="container">
-    <uni-nav-bar
-      title="待接订单"
-      left-icon="left"
-      :fixed="true"
-      :status-bar="true"
-      @clickLeft="back"
-    ></uni-nav-bar>
-
     <view v-if="orders.length" class="order-list">
       <view v-for="order in orders" :key="order.pkId" class="order-item">
         <view class="order-header">
@@ -53,9 +45,6 @@ export default {
     }
   },
   methods: {
-    back() {
-      uni.navigateBack()
-    },
     async loadOrders() {
       this.loading = true
       try {

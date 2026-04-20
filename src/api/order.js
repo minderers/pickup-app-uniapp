@@ -7,7 +7,7 @@ export const getOrderDetail = (id) => http({ url: `order/${id}`, method: 'GET' }
 export const getRecommend = (type) =>
   http({ url: 'order/recommend', method: 'GET', data: { type } })
 export const getOrderProgress = (id) => http({ url: `order/progress/${id}`, method: 'GET' })
-export const cancelOrder = (id) => http({ url: `order/${id}/cancel`, method: 'POST' })
+export const cancelOrder = (id) => http({ url: `order/cancel/${id}`, method: 'PUT' })
 export const acceptOrder = (id) => http({ url: `order/${id}/accept`, method: 'POST' })
 export const getAvailableOrders = (params) =>
   http({ url: 'order/available', method: 'GET', data: params })

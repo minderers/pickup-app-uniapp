@@ -149,7 +149,7 @@
         </view>
       </view>
 
-      <view v-if="Number(info.pickerId) > 0" class="bg-white rounded-2xl p-5 shadow-sm">
+      <view v-if="Number(info.status) >= 2 && Number(info.pickerId) > 0" class="bg-white rounded-2xl p-5 shadow-sm">
         <view class="text-sm font-medium text-gray-500 mb-4">接取人信息</view>
         <view class="flex items-center gap-3">
           <image
@@ -223,13 +223,17 @@ export default {
       }
     },
     async loadCourierInfo() {
+      const status = Number(this.info.status || 0)
       const pid = Number(this.info.pickerId || 0)
-      if (!pid) return
+      if (status < 2 || !pid) {
+        this.courierInfo = {}
+        return
+      }
       try {
         const { data } = await getCourierInfo(pid)
         this.courierInfo = data || {}
       } catch (e) {
-        // courier 信息不是必须字段（可能角色不匹配等），避免页面硬崩
+        // 未接单或代取员信息缺失时，不影响订单详情展示
         this.courierInfo = {}
       }
     },
@@ -252,9 +256,13 @@ export default {
         content: '确定要取消该订单吗？',
         success: async (res) => {
           if (res.confirm) {
-            await cancelOrder(this.orderId)
-            uni.showToast({ title: '订单已取消', icon: 'success' })
-            await this.loadOrderDetail() // 刷新订单详情
+            try {
+              await cancelOrder(this.orderId)
+              uni.showToast({ title: '订单已取消', icon: 'success' })
+              await this.loadOrderDetail() // 刷新订单详情
+            } catch (e) {
+              console.error('取消订单失败', e)
+            }
           }
         },
       })
